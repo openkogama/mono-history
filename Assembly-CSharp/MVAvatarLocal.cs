@@ -139,6 +139,8 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		protected float deadInterval = 4f;
 
+		private bool setDeadCamDelayed;
+
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
 
 		public DeadMode(MVAvatarLocal mvAvatar)
@@ -167,6 +169,11 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			if (!mvAvatar.InGunMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
 			{
 				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+				setDeadCamDelayed = true;
+			}
+			else
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
 			}
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
@@ -209,9 +216,10 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				mvAvatar.avatarMotor.UpdateFunction();
 			}
-			if (Time.time - deadTime > deadInterval)
+			if (setDeadCamDelayed && Time.time - deadTime > 0.5f)
 			{
-				RevivePlayer();
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
+				setDeadCamDelayed = false;
 			}
 		}
 
@@ -421,6 +429,10 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
 				setDeadCamDelayed = true;
+			}
+			else
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
 			}
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}

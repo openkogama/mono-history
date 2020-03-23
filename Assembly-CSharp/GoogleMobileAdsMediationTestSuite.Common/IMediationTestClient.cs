@@ -10,4 +10,6 @@ public interface IMediationTestClient
 	event EventHandler<EventArgs> OnMediationTestSuiteDismissed;
 
 	void Show(string appId);
+
+	void Show();
 }

@@ -11,9 +11,6 @@ public class TierUnlockedPopupController : MonoBehaviour
 	private Image Background;
 
 	[SerializeField]
-	private NotificationFade closeButtonFader;
-
-	[SerializeField]
 	private TierUnlockedPopupContentTierUnlocked PopupContentTierUnlockedPrefab;
 
 	[SerializeField]
@@ -21,6 +18,9 @@ public class TierUnlockedPopupController : MonoBehaviour
 
 	[SerializeField]
 	private TierUnlockedPopupContentSpawnRole popupContentSpawnRolePrefab;
+
+	[SerializeField]
+	private GamePassesSpawnRoleRewardInfo spawnRoleInfoPrefab;
 
 	[SerializeField]
 	private TierUnlockedPopupContentBase PopupContentCreatorSupportPrefab;
@@ -86,19 +86,6 @@ public class TierUnlockedPopupController : MonoBehaviour
 			tierUnlockedPopupContentTierTempUnlocked.transform.SetParent(transform, worldPositionStays: false);
 			popupContentList.Add(tierUnlockedPopupContentTierTempUnlocked);
 		}
-		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
-		for (int i = 0; i < worldObjectsByType.Count; i++)
-		{
-			if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == unlockedTier)
-			{
-				TierUnlockedPopupContentSpawnRole tierUnlockedPopupContentSpawnRole = Object.Instantiate(popupContentSpawnRolePrefab);
-				tierUnlockedPopupContentSpawnRole.SetupPreviewImage(((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).GetSpawnRolePreviewObject());
-				tierUnlockedPopupContentSpawnRole.SetupColor(((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Team);
-				tierUnlockedPopupContentSpawnRole.transform.SetParent(transform, worldPositionStays: false);
-				tierUnlockedPopupContentSpawnRole.gameObject.SetActive(value: false);
-				popupContentList.Add(tierUnlockedPopupContentSpawnRole);
-			}
-		}
 		if (wasPurchased)
 		{
 			TierUnlockedPopupContentBase tierUnlockedPopupContentBase = Object.Instantiate(PopupContentCreatorSupportPrefab);
@@ -113,15 +100,38 @@ public class TierUnlockedPopupController : MonoBehaviour
 			tierTempUnlockedInformationPopupContent.gameObject.SetActive(value: false);
 			popupContentList.Add(tierTempUnlockedInformationPopupContent);
 		}
+		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
+		if (worldObjectsByType.Count > 0)
+		{
+			bool flag = false;
+			for (int i = 0; i < worldObjectsByType.Count; i++)
+			{
+				if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == unlockedTier)
+				{
+					flag = true;
+					break;
+				}
+			}
+			if (flag)
+			{
+				TierUnlockedPopupContentSpawnRole tierUnlockedPopupContentSpawnRole = Object.Instantiate(popupContentSpawnRolePrefab);
+				tierUnlockedPopupContentSpawnRole.transform.SetParent(transform, worldPositionStays: false);
+				tierUnlockedPopupContentSpawnRole.gameObject.SetActive(value: false);
+				for (int j = 0; j < worldObjectsByType.Count; j++)
+				{
+					if (worldObjectsByType[j] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[j]).Tier == unlockedTier)
+					{
+						GamePassesSpawnRoleRewardInfo gamePassesSpawnRoleRewardInfo = Object.Instantiate(spawnRoleInfoPrefab);
+						gamePassesSpawnRoleRewardInfo.Initialize(j, ((MVAvatarSpawnRoleCreator)worldObjectsByType[j]).GetSpawnRolePreviewObject(), (MVAvatarSpawnRoleCreator)worldObjectsByType[j], unlockedTier);
+						tierUnlockedPopupContentSpawnRole.AddSpawnRoleRewardInfo(gamePassesSpawnRoleRewardInfo);
+					}
+				}
+				popupContentList.Add(tierUnlockedPopupContentSpawnRole);
+			}
+		}
 		StartNewPopupContent(0);
 		Background.color = popupContentList[0].BackgroundColor;
 		HighestTierRewardShown = unlockedTier;
-	}
-
-	public void ShowCloseButton()
-	{
-		closeButtonFader.ShouldHideWhenDone = false;
-		closeButtonFader.Activate();
 	}
 
 	private void Update()

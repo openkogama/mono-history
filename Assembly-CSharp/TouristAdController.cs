@@ -14,33 +14,47 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 
 	private float timer;
 
-	private UnityAction<bool> onPromotionWasPopped;
+	private UnityAction<bool, bool> onPromotionWasPopped;
 
-	public bool IsPromotionAvailable => !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && TouristPromotionAllowed();
+	private bool eligableForPromotion;
+
+	private bool withAd;
+
+	public bool IsPromotionAvailable => !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && TouristPromotionAllowed() && eligableForPromotion;
 
 	public void Initialize()
 	{
 		enabled = true;
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.OnChange += OnChangeMode;
+	}
+
+	private void OnChangeMode(SpawnRoleModeType type)
+	{
+		if (type == SpawnRoleModeType.Dead)
+		{
+			eligableForPromotion = true;
+		}
 	}
 
 	private void OnPromotionPopped()
 	{
 		if (onPromotionWasPopped != null)
 		{
-			onPromotionWasPopped(arg0: true);
+			onPromotionWasPopped(arg0: true, withAd);
 		}
 	}
 
-	public void ShowPromotion(UnityAction<bool> onPop)
+	public void ShowPromotion(UnityAction<bool, bool> onPop)
 	{
+		eligableForPromotion = false;
 		onPromotionWasPopped = onPop;
-		bool withAd = timer >= timeBeforeAdShown;
+		withAd = timer >= timeBeforeAdShown;
 		TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
+		promotion.Initialize(withAd);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(promotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
 		});
-		promotion.Initialize(withAd);
 	}
 
 	private bool TouristPromotionAllowed()

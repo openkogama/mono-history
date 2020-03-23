@@ -36,6 +36,11 @@ public class AccessoryData
 
 	public int DiscountedPrice => cost - cost * dsc / 100;
 
+	public override string ToString()
+	{
+		return $"{name}:\r\n  isAvailable {iAvlb}\r\n  isLimited {iNew}\r\n  isFeatured {iFtr}\r\n  priceGold {cost}\r\n  discount {dsc}\r\n  level {lvl}\r\n  category {cat}\r\n  position {pos}\r\n  url {url}\r\n  accessorySlotType {slot}";
+	}
+
 	public bool GetShowInShop()
 	{
 		bool flag = true;

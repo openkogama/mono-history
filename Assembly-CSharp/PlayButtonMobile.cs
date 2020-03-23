@@ -28,18 +28,48 @@ public class PlayButtonMobile : MonoBehaviour
 		}
 		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
 		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;
+		bool haveBeenPressed = FirstTimePressPlayController.HaveBeenPressed;
+		SpawnRoleModeType value = MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value;
+		bool flag3 = value == SpawnRoleModeType.Dead || value == SpawnRoleModeType.Hidden;
 		if (!flag && !flag2)
 		{
-			StartPlaying();
+			if (haveBeenPressed && flag3)
+			{
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+				{
+					x.TryShowPromotion(OnPromotionShown);
+				});
+			}
+			else
+			{
+				StartPlaying();
+			}
+		}
+		else if (haveBeenPressed && flag3)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+			{
+				x.TryShowPromotion(OnPromotionShown);
+			});
 		}
 		else
 		{
 			button.interactable = false;
 		}
-		if (!FirstTimePressPlayController.HaveBeenPressed)
+		if (!haveBeenPressed)
 		{
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
+	}
+
+	private void OnDisable()
+	{
+		button.interactable = true;
+	}
+
+	private void OnPromotionShown(bool promotionShown, bool withAd)
+	{
+		button.interactable = false;
 	}
 
 	public virtual void OnConfirmPlay()

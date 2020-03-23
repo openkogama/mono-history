@@ -80,9 +80,9 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 					x.TryShowPromotion(OnPromotionShown);
 				});
 			}
-			else if (!HandlePlayAvailable())
+			else
 			{
-				StartPlaying();
+				HandlePlayPress();
 			}
 		}
 		else
@@ -92,14 +92,37 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 			{
 				timedPlayReward.ClaimReward();
 			}
-			if (!HandlePlayAvailable())
-			{
-				StartPlaying();
-			}
+			HandlePlayPress();
 		}
 	}
 
-	private void OnPromotionShown(bool promotionShown)
+	private void OnPromotionShown(bool promotionShown, bool withAd)
+	{
+		if (promotionShown && withAd)
+		{
+			ContinueButtonLockCursor continueBtn = UnityEngine.Object.Instantiate(continueButtonPrefab);
+			continueBtn.Initialize(OnContinuePressed);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(continueBtn.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+		}
+		else
+		{
+			HandlePlayPress();
+		}
+	}
+
+	private void OnContinuePressed()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		HandlePlayPress();
+	}
+
+	private void HandlePlayPress()
 	{
 		if (!HandlePlayAvailable())
 		{

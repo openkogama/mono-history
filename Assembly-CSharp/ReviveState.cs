@@ -29,15 +29,11 @@ public class ReviveState
 		}
 		set
 		{
-			if (!MVClientSettings.ReviveEnabled)
+			if (!MVClientSettings.ReviveEnabled || Time.time - safeSpotSuppressedTime < safeSpotSuppressedDuration)
 			{
 				return;
 			}
-			if (Time.time - safeSpotSuppressedTime < safeSpotSuppressedDuration)
-			{
-				Debug.LogWarning("Currently Suppressing safe spot saving.");
-			}
-			else if (safePositions.Count == 0)
+			if (safePositions.Count == 0)
 			{
 				safePositions.Add(value);
 			}

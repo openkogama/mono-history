@@ -113,7 +113,6 @@ public class KoGaMaPackageClient
 				Debug.Log(HashtableFunctions.PrettyString(worldObjectData));
 				Debug.Log(worldObjectData.ContainsKey(WorldObjectDataParameters.Scale));
 			}
-			Debug.Log("(int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] " + (int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber]);
 			int num = (int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber];
 			if (num == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{

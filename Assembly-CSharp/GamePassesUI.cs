@@ -25,10 +25,7 @@ public class GamePassesUI : MonoBehaviour
 	private GameTierProgressBarGainEffectController gainEffectController;
 
 	[SerializeField]
-	private GamePassesWelcomeRewardPopup welcomeRewardPopupPrefab;
-
-	[SerializeField]
-	private GamePassesWelcomeRewardPopup doubleWelcomeRewardPopupPrefab;
+	private GamePassesWelcomeReward welcomeRewardPopup;
 
 	private bool isInitialized;
 
@@ -51,7 +48,7 @@ public class GamePassesUI : MonoBehaviour
 	{
 		if (ShouldShowWelcomeReward())
 		{
-			ShowWelcomeRewardPopup();
+			welcomeRewardPopup.Initialize();
 		}
 	}
 
@@ -120,30 +117,12 @@ public class GamePassesUI : MonoBehaviour
 
 	private bool ShouldShowWelcomeReward()
 	{
-		if (GamePassesManager.playerTierStateCalculator == null || MVGameControllerBase.GoldRewardManager.CanGetGoldReward())
+		if (GamePassesManager.playerTierStateCalculator == null)
 		{
 			return false;
 		}
 		int welcomeReward = GamePassesManager.playerTierStateCalculator.welcomeReward;
 		return welcomeReward > 0 && GamePassProgressionController.IsProgressionEnabled && !GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday() && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
-	}
-
-	private void ShowWelcomeRewardPopup()
-	{
-		GamePassesWelcomeRewardPopup welcomeRewardPopup;
-		if (MVClientSettings.RewardedAdsEnabled && MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
-		{
-			welcomeRewardPopup = UnityEngine.Object.Instantiate(doubleWelcomeRewardPopupPrefab);
-		}
-		else
-		{
-			welcomeRewardPopup = UnityEngine.Object.Instantiate(welcomeRewardPopupPrefab);
-		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-		});
-		welcomeRewardPopup.Initialize();
 	}
 
 	private void OnPlayerPlanetDataUpdated()

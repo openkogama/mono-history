@@ -25,7 +25,7 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 
 	private float timeBeforeShownPromotion = 180f;
 
-	private UnityAction<bool> onPromotionWasPopped;
+	private UnityAction<bool, bool> onPromotionWasPopped;
 
 	public bool IsPromotionAvailable => timer >= timeBeforeShownPromotion;
 
@@ -64,7 +64,7 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 		}
 		else if (onPromotionWasPopped != null)
 		{
-			onPromotionWasPopped(arg0: false);
+			onPromotionWasPopped(arg0: false, arg1: false);
 		}
 	}
 
@@ -72,7 +72,7 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 	{
 		if (onPromotionWasPopped != null)
 		{
-			onPromotionWasPopped(arg0: true);
+			onPromotionWasPopped(arg0: true, arg1: true);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 		}
 	}
 
-	public void ShowPromotion(UnityAction<bool> onPop)
+	public void ShowPromotion(UnityAction<bool, bool> onPop)
 	{
 		onPromotionWasPopped = onPop;
 		ShowRegisteredPromotionPopup();

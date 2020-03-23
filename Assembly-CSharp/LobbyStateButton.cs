@@ -117,7 +117,6 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 
 	public void OnPressPlay()
 	{
-		levelRewards.ShowLevelNotification();
 		bool hasGameWinningCondition = WinningConditionControl.TryGetPrioritizedWinCondition(out var winCon);
 		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
 		bool flag = worldObjectsByType.Count > 0;

@@ -33,15 +33,16 @@ public static class CullingApiWrapper
 		set
 		{
 			cullingGroup.targetCamera = value;
+			SetDistanceReferencePoint(value.transform);
 		}
 	}
 
-	public static void Init(int initialSphereCount, Camera camera, float newBaseDistance, Transform distanceReferencePoint)
+	public static void Init(int initialSphereCount, Camera camera, float newBaseDistance)
 	{
 		spheres = new BoundingSphere[initialSphereCount + 1000];
 		CullingApiWrapper.cullingGroup = new CullingGroup();
 		CullingApiWrapper.cullingGroup.targetCamera = camera;
-		SetDistanceReferencePoint(distanceReferencePoint);
+		SetDistanceReferencePoint(camera.transform);
 		CullingApiWrapper.cullingGroup.SetBoundingSpheres(spheres);
 		CullingApiWrapper.cullingGroup.SetBoundingSphereCount(0);
 		CullingGroup cullingGroup = CullingApiWrapper.cullingGroup;

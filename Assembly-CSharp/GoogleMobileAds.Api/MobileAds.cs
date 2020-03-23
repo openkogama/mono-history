@@ -11,6 +11,11 @@ public class MobileAds
 		{
 			return client.GetDeviceScale();
 		}
+
+		public static int GetDeviceSafeWidth()
+		{
+			return client.GetDeviceSafeWidth();
+		}
 	}
 
 	private static readonly IMobileAdsClient client = GetMobileAdsClient();

@@ -94,6 +94,8 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 
 	private static bool haveShownTips;
 
+	private bool hasShownRankTip;
+
 	private Transform previewHeadRoot;
 
 	public void OnHeadClick()
@@ -213,6 +215,12 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		if (GamePassesManager.GamePassesActive)
 		{
 			int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
+			if (progressionGamePoints != GamePointGainEffectManager.GamePointAmountShown && haveShownTips && !hasShownRankTip && MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit && !MVGameControllerBase.IsTouristSession)
+			{
+				hasShownRankTip = true;
+				int rank = GamePassesManager.PlayerPlanetData.rank;
+				highScoreTipTextBubble.Activate("Rank\n" + rank);
+			}
 			GamePointGainEffectManager.HaveShownTierProgressBarGamePointGainEffect(progressionGamePoints);
 		}
 		UpdateTempProgressVisibility();
@@ -563,18 +571,24 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		}
 	}
 
-	private void ShowFreeTryTextBubble()
+	private bool ShowFreeTryTextBubble()
 	{
 		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
-		if (CanShowFreeTryBubble() && MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTier + 1) != null)
+		if (!CanShowFreeTryBubble())
 		{
-			int index = (int)gamePassTier;
-			if (!tierProgressDataList[index].freeTryTextBubble.IsActive)
-			{
-				tierProgressDataList[index].freeTryTextBubble.gameObject.SetActive(value: true);
-				tierProgressDataList[index].freeTryTextBubble.Activate(TM._("FREE TRY"));
-			}
+			return false;
 		}
+		if (MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTier + 1) == null)
+		{
+			return false;
+		}
+		int index = (int)gamePassTier;
+		if (!tierProgressDataList[index].freeTryTextBubble.IsActive)
+		{
+			tierProgressDataList[index].freeTryTextBubble.gameObject.SetActive(value: true);
+			tierProgressDataList[index].freeTryTextBubble.Activate(TM._("FREE TRY"));
+		}
+		return true;
 	}
 
 	private bool CanShowFreeTryBubble()
@@ -694,43 +708,37 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 	private void HandleShowTips()
 	{
 		haveShownTips = true;
-		bool flag = MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit;
-		bool flag2 = false;
-		flag2 = true;
-		bool isTouristSession = MVGameControllerBase.IsTouristSession;
-		if (!flag && !isTouristSession)
+		bool flag = false;
+		flag = true;
+		if (!ShowFreeTryTextBubble())
 		{
-			int rank = GamePassesManager.PlayerPlanetData.rank;
-			highScoreTipTextBubble.Activate("Rank\n" + rank);
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+			{
+				GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+				int index = Mathf.Clamp((int)(gamePassTier - 1), 0, tierProgressDataList.Count);
+				tierProgressDataList[index].disabledBarTextBubble.Activate("Progression is disabled in build mode");
+				tierProgressDataList[index].progressBarTextBubble.Activate("Progression is disabled in build mode");
+			}
+			else if (MVGameControllerBase.IsTouristSession)
+			{
+				tierProgressDataList[0].disabledBarTextBubble.Activate("Sign up to be able to save progression");
+				tierProgressDataList[0].progressBarTextBubble.Activate("Sign up to be able to save progression");
+			}
+			else if (flag)
+			{
+				GamePassTier gamePassTier2 = GamePassesManager.PlayerPlanetData.gamePassTier;
+				int index2 = Mathf.Clamp((int)(gamePassTier2 - 1), 0, tierProgressDataList.Count);
+				tierProgressDataList[index2].disabledBarTextBubble.Activate("Progression is disabled in standalone to prevent cheating");
+				tierProgressDataList[index2].progressBarTextBubble.Activate("Progression is disabled in standalone to prevent cheating");
+			}
+			else if (!IsProgressBarEnabled())
+			{
+				GamePassTier gamePassTier3 = GamePassesManager.PlayerPlanetData.gamePassTier;
+				int index3 = Mathf.Clamp((int)(gamePassTier3 - 1), 0, tierProgressDataList.Count);
+				tierProgressDataList[index3].disabledBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
+				tierProgressDataList[index3].progressBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
+			}
 		}
-		if (flag)
-		{
-			GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
-			int index = Mathf.Clamp((int)(gamePassTier - 1), 0, tierProgressDataList.Count);
-			tierProgressDataList[index].disabledBarTextBubble.Activate("Progression is disabled in build mode");
-			tierProgressDataList[index].progressBarTextBubble.Activate("Progression is disabled in build mode");
-			return;
-		}
-		if (isTouristSession)
-		{
-			tierProgressDataList[0].disabledBarTextBubble.Activate("Sign up to be able to save progression");
-			tierProgressDataList[0].progressBarTextBubble.Activate("Sign up to be able to save progression");
-		}
-		else if (flag2)
-		{
-			GamePassTier gamePassTier2 = GamePassesManager.PlayerPlanetData.gamePassTier;
-			int index2 = Mathf.Clamp((int)(gamePassTier2 - 1), 0, tierProgressDataList.Count);
-			tierProgressDataList[index2].disabledBarTextBubble.Activate("Progression is disabled in standalone to prevent cheating");
-			tierProgressDataList[index2].progressBarTextBubble.Activate("Progression is disabled in standalone to prevent cheating");
-		}
-		else if (!IsProgressBarEnabled())
-		{
-			GamePassTier gamePassTier3 = GamePassesManager.PlayerPlanetData.gamePassTier;
-			int index3 = Mathf.Clamp((int)(gamePassTier3 - 1), 0, tierProgressDataList.Count);
-			tierProgressDataList[index3].disabledBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
-			tierProgressDataList[index3].progressBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
-		}
-		ShowFreeTryTextBubble();
 	}
 
 	private bool IsProgressBarEnabled()

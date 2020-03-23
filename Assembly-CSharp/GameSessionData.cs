@@ -73,7 +73,7 @@ public class GameSessionData
 	{
 		get
 		{
-			if (referralToLogoMap.ContainsKey(referrer))
+			if (!string.IsNullOrEmpty(referrer) && referralToLogoMap.ContainsKey(referrer))
 			{
 				return referralToLogoMap[referrer];
 			}

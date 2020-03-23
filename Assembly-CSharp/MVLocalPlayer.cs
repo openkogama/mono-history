@@ -213,7 +213,6 @@ public abstract class MVLocalPlayer : MVPlayer
 		Dictionary<object, object> data = dictionary;
 		NotificationController.OnNotificationReceived(NotificationType.XP, data);
 		MVGameControllerBase.GameEventManager.NotifyXPDeltaAmount(xpProgressData.XPDelta);
-		BrowserComm.ToJavaScript.ExternalCall("increaseXP", xpProgressData.XP);
 	}
 
 	protected void OnLevelChangedLocal(int level)

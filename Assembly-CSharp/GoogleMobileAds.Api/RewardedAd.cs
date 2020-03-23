@@ -87,6 +87,15 @@ public class RewardedAd
 		client.SetServerSideVerificationOptions(serverSideVerificationOptions);
 	}
 
+	public Reward GetRewardItem()
+	{
+		if (client.IsLoaded())
+		{
+			return client.GetRewardItem();
+		}
+		return null;
+	}
+
 	public string MediationAdapterClassName()
 	{
 		return client.MediationAdapterClassName();

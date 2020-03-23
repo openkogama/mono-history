@@ -2,7 +2,16 @@ namespace GoogleMobileAds.Api;
 
 public class AdSize
 {
-	private bool isSmartBanner;
+	public enum Type
+	{
+		Standard,
+		SmartBanner,
+		AnchoredAdaptive
+	}
+
+	private Type type;
+
+	private Orientation orientation;
 
 	private int width;
 
@@ -16,27 +25,62 @@ public class AdSize
 
 	public static readonly AdSize Leaderboard = new AdSize(728, 90);
 
-	public static readonly AdSize SmartBanner = new AdSize(isSmartBanner: true);
+	public static readonly AdSize SmartBanner = new AdSize(0, 0, Type.SmartBanner);
 
 	public static readonly int FullWidth = -1;
 
-	public int Width => width;
+	public int Width
+	{
+		get
+		{
+			if (width == FullWidth)
+			{
+				return MobileAds.Utils.GetDeviceSafeWidth();
+			}
+			return width;
+		}
+	}
 
 	public int Height => height;
 
-	public bool IsSmartBanner => isSmartBanner;
+	public Type AdType => type;
+
+	internal Orientation Orientation => orientation;
 
 	public AdSize(int width, int height)
 	{
-		isSmartBanner = false;
+		type = Type.Standard;
 		this.width = width;
 		this.height = height;
+		orientation = Orientation.Current;
 	}
 
-	private AdSize(bool isSmartBanner)
-		: this(0, 0)
+	private AdSize(int width, int height, Type type)
+		: this(width, height)
 	{
-		this.isSmartBanner = isSmartBanner;
+		this.type = type;
+	}
+
+	private static AdSize CreateAnchoredAdaptiveAdSize(int width, Orientation orientation)
+	{
+		AdSize adSize = new AdSize(width, 0, Type.AnchoredAdaptive);
+		adSize.orientation = orientation;
+		return adSize;
+	}
+
+	public static AdSize GetLandscapeAnchoredAdaptiveBannerAdSizeWithWidth(int width)
+	{
+		return CreateAnchoredAdaptiveAdSize(width, Orientation.Landscape);
+	}
+
+	public static AdSize GetPortraitAnchoredAdaptiveBannerAdSizeWithWidth(int width)
+	{
+		return CreateAnchoredAdaptiveAdSize(width, Orientation.Portrait);
+	}
+
+	public static AdSize GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(int width)
+	{
+		return CreateAnchoredAdaptiveAdSize(width, Orientation.Current);
 	}
 
 	public override bool Equals(object obj)
@@ -46,7 +90,7 @@ public class AdSize
 			return false;
 		}
 		AdSize adSize = (AdSize)obj;
-		return width == adSize.width && height == adSize.height && isSmartBanner == adSize.isSmartBanner;
+		return width == adSize.width && height == adSize.height && type == adSize.type && orientation == adSize.orientation;
 	}
 
 	public static bool operator ==(AdSize a, AdSize b)
@@ -66,6 +110,7 @@ public class AdSize
 		int num3 = num;
 		num3 = (num3 * num2) ^ width.GetHashCode();
 		num3 = (num3 * num2) ^ height.GetHashCode();
-		return (num3 * num2) ^ isSmartBanner.GetHashCode();
+		num3 = (num3 * num2) ^ type.GetHashCode();
+		return (num3 * num2) ^ orientation.GetHashCode();
 	}
 }

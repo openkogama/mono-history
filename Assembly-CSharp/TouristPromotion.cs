@@ -58,7 +58,10 @@ public class TouristPromotion : MonoBehaviour
 		}
 		else
 		{
-			StartCoroutine(FadeOutAndPopPromotion());
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
 		}
 	}
 

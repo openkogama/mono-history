@@ -32,7 +32,7 @@ public class CullingApiTest : MonoBehaviour
 	private void Start()
 	{
 		mainCamera = Camera.main;
-		CullingApiWrapper.Init(0, mainCamera, CullingApiWrapper.baseDistance, mainCamera.transform);
+		CullingApiWrapper.Init(0, mainCamera, CullingApiWrapper.baseDistance);
 		Subscribe();
 	}
 

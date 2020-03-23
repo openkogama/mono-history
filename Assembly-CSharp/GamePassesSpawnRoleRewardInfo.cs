@@ -228,7 +228,7 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour, IGamePassShopContent
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
-			handler.PopGroups(UIGroupFlags.InventoryUI);
+			handler.PopToGroup(UIGroupFlags.MainUI);
 		});
 		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 	}

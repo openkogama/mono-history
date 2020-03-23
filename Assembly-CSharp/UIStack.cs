@@ -19,6 +19,8 @@ public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 
 		public readonly bool hideAllExceptStackbottom;
 
+		public readonly bool suppressInput;
+
 		public readonly UnityAction onPop;
 
 		public readonly UIGroupFlags group;
@@ -33,6 +35,7 @@ public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 			hideAll = (pushOption & UIPushOption.HideAll) != 0;
 			invisibleBlocker = (pushOption & UIPushOption.InvisibleBlocker) != 0;
 			hideAllExceptStackbottom = (pushOption & UIPushOption.HideAllExceptStackBottom) != 0;
+			suppressInput = (pushOption & UIPushOption.SuppressInput) != 0;
 			this.onPop = onPop;
 			this.group = group;
 		}
@@ -45,6 +48,9 @@ public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 
 	[SerializeField]
 	private GameObject blockingObject;
+
+	[SerializeField]
+	private DisableInput inputBlocker;
 
 	[SerializeField]
 	private Image blockingObjectImage;
@@ -116,6 +122,7 @@ public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 		if (stackElement.blockingObject)
 		{
 			blockingObject.transform.SetAsLastSibling();
+			inputBlocker.enabled = stackElement.suppressInput;
 			blockingObject.gameObject.SetActive(value: true);
 		}
 		stackElement.gameObject.transform.SetParent(root.transform, worldPositionStays: false);

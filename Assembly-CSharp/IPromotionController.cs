@@ -6,5 +6,5 @@ public interface IPromotionController
 
 	void Initialize();
 
-	void ShowPromotion(UnityAction<bool> onPop);
+	void ShowPromotion(UnityAction<bool, bool> onPop);
 }

@@ -137,18 +137,6 @@ public class DeathUIController : MonoBehaviour
 		}
 	}
 
-	private void OnLocalAvatarSuicide()
-	{
-		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
-		{
-			Debug.Log("LocalSuicide");
-			gameObject.SetActive(value: true);
-			string deathText = TM._("Respawning..");
-			deathMessageBar.SetActive(value: false);
-			StartDeathBriefing(deathText);
-		}
-	}
-
 	private void ShowReviveMenu(bool reboostOnly)
 	{
 		if (reboostOnly)
@@ -318,6 +306,18 @@ public class DeathUIController : MonoBehaviour
 		return (int)TierUnlockedPopupController.HighestTierRewardShown < (int)GamePassesManager.PlayerPlanetData.gamePassTier && (int)TierUnlockedPopupController.HighestTierRewardShown < (int)tierToShow && (int)tierToShow <= (int)GamePassesManager.PlayerPlanetData.gamePassTier;
 	}
 
+	private void OnLocalAvatarSuicide()
+	{
+		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
+		{
+			Debug.Log("LocalSuicide");
+			gameObject.SetActive(value: true);
+			string deathText = TM._("Respawning..");
+			deathMessageBar.SetActive(value: false);
+			StartDeathBriefing(deathText);
+		}
+	}
+
 	private void OnLocalPlayerKilled(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
 	{
 		bool shotSelf = localPlayerActorNr == dmgDealerActorNr;
@@ -357,7 +357,7 @@ public class DeathUIController : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(UnityEngine.Object.Instantiate(invisibleBlocker), UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+			x.Push(UnityEngine.Object.Instantiate(invisibleBlocker), UIPushOption.InvisibleBlocker | UIPushOption.SuppressInput, null, UIGroupFlags.Popup);
 		});
 		Debug.Log("StartDeathBriefing");
 		if (!MVGameControllerBase.PlayModeUI.InLobbyState)

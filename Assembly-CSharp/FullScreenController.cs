@@ -11,6 +11,8 @@ public static class FullScreenController
 
 	private static bool waitingForFullscreenChange;
 
+	private static bool fullscreenStatCollected;
+
 	public static UnityAction<bool> OnFullScreenChange;
 
 	public static bool FullScreen
@@ -21,15 +23,23 @@ public static class FullScreenController
 		}
 		set
 		{
-			if (value != fullScreen && AllowFullscreenChange())
+			if (value == fullScreen || !AllowFullscreenChange())
 			{
-				waitingForFullscreenChange = true;
-				fullScreen = value;
-				if (fullScreen)
+				return;
+			}
+			waitingForFullscreenChange = true;
+			fullScreen = value;
+			if (fullScreen)
+			{
+				Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, fullscreen: true);
+				if (!fullscreenStatCollected)
 				{
-					Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, fullscreen: true);
-					return;
+					StatHatWrapper.Count("FullscreenActivated", 1);
+					fullscreenStatCollected = true;
 				}
+			}
+			else
+			{
 				Screen.fullScreen = false;
 				Screen.SetResolution(screenWidthBeforeFullscreen, screenHeightBeforeFullscreen, fullscreen: false);
 			}

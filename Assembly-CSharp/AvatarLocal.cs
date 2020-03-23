@@ -31,7 +31,7 @@ public class AvatarLocal : Avatar
 
 	public void OnXpProgressing(int xp)
 	{
-		Debug.Log("OnXpProgressing....................");
+		Debug.Log("OnXpProgressing");
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = transform;
 		avatarPooledXPParticles.transform.localPosition = Vector3.up;

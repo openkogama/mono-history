@@ -43,6 +43,7 @@ public class MVGameControllerDesktop : MVGameControllerBase
 
 	protected void Start()
 	{
+		sentrySdk.Initialize();
 		bool developmentMode = Application.isEditor || koGaMaSettings.ShowDebugLogin;
 		InitStandAlone(developmentMode);
 		FullScreenController.FullScreen = false;

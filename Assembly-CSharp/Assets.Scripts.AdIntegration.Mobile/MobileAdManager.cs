@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Api.Mediation.IronSource;
-using GoogleMobileAds.Api.Mediation.Tapjoy;
 using GoogleMobileAds.Api.Mediation.UnityAds;
 using GoogleMobileAds.Api.Mediation.Vungle;
 using MV.Common;
@@ -787,7 +786,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 	{
 		SetConsentVungle(hasConsented);
 		SetConsentUnityAds(hasConsented);
-		SetConsentTapJoy(hasConsented, isGDPRConsentRequired);
 		SetConsentIronSource(hasConsented);
 	}
 
@@ -822,12 +820,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 	private void SetConsentUnityAds(bool hasConsented)
 	{
 		UnityAds.SetGDPRConsentMetaData(hasConsented);
-	}
-
-	private void SetConsentTapJoy(bool hasConsented, bool isGDPRConsentRequired)
-	{
-		Tapjoy.SubjectToGDPR(isGDPRConsentRequired);
-		Tapjoy.SetUserConsent(BoolToString(hasConsented));
 	}
 
 	private void SetConsentIronSource(bool hasConsented)

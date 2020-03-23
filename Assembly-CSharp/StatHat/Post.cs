@@ -36,10 +36,18 @@ public static class Post
 
 		private void PostForm()
 		{
-			byte[] postData = CreatePostData();
+			byte[] data = CreatePostData();
 			Dictionary<string, string> dictionary = new Dictionary<string, string>();
 			dictionary["Content-Type"] = "application/x-www-form-urlencoded";
-			AsyncWWWManager.WWWRequest(new CustomPostRequest(BaseUrl + RelUrl, postData, dictionary, callback, WWWRequestPriority.ExecuteWhileSyncronizing));
+			UnityWebRequest unityWebRequest = new UnityWebRequest(BaseUrl + RelUrl, "POST");
+			UploadHandlerRaw uploadHandlerRaw = new UploadHandlerRaw(data);
+			uploadHandlerRaw.contentType = "application/x-www-form-urlencoded";
+			unityWebRequest.uploadHandler = uploadHandlerRaw;
+			foreach (KeyValuePair<string, string> item in dictionary)
+			{
+				unityWebRequest.SetRequestHeader(item.Key, item.Value);
+			}
+			AsyncWWWManager.WWWRequest(new CustomPostRequest(unityWebRequest, callback, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 
 		private byte[] CreatePostData()

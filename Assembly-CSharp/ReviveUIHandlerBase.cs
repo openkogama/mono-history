@@ -35,6 +35,8 @@ public abstract class ReviveUIHandlerBase : MonoBehaviour
 
 	private float duration;
 
+	protected abstract AdContext AdContext { get; }
+
 	protected abstract void OnRewardedAdWatched(RewardedAdResult result);
 
 	protected abstract void OnAdFinishedContinue();
@@ -111,7 +113,7 @@ public abstract class ReviveUIHandlerBase : MonoBehaviour
 		});
 		if (MVGameControllerBase.EditModeUI == null)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(OnRewardedAdWatched, AdContext.Revive);
+			MVGameControllerBase.AdManager.RequestRewardedAd(OnRewardedAdWatched, AdContext);
 		}
 		else
 		{

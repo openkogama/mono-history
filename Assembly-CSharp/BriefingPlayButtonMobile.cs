@@ -6,7 +6,7 @@ public class BriefingPlayButtonMobile : PlayButtonMobile
 {
 	protected override void OnCountdownEnd()
 	{
-		base.OnConfirmPlay();
+		base.OnCountdownEnd();
 	}
 
 	public override void OnConfirmPlay()

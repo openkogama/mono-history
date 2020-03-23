@@ -4,10 +4,12 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class LevelRewardsLobbyState : MonoBehaviour
+public class LevelRewardsLobbyState : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
 {
 	[SerializeField]
 	private LevelRewardAnimation levelRewardAnimation;
+
+	private bool isMouseOver;
 
 	private static int previousNextLevelRewardShown;
 
@@ -52,7 +54,7 @@ public class LevelRewardsLobbyState : MonoBehaviour
 		}
 	}
 
-	public void ShowLevelNotification()
+	private void ShowLevelNotification()
 	{
 		int key = MVGameControllerBase.Game.LevelRewardsManager.NextReward.Key;
 		if (key != previousNextLevelRewardShown)
@@ -69,5 +71,23 @@ public class LevelRewardsLobbyState : MonoBehaviour
 			LevelRewardsManager levelRewardsManager = MVGameControllerBase.Game.LevelRewardsManager;
 			levelRewardsManager.OnRewardsReturned = (Action)Delegate.Remove(levelRewardsManager.OnRewardsReturned, new Action(ShowRewards));
 		}
+	}
+
+	public void OnPointerDown(PointerEventData eventData)
+	{
+		if (eventData.button == PointerEventData.InputButton.Left && isMouseOver)
+		{
+			ShowLevelNotification();
+		}
+	}
+
+	public void OnPointerExit(PointerEventData eventData)
+	{
+		isMouseOver = false;
+	}
+
+	public void OnPointerEnter(PointerEventData eventData)
+	{
+		isMouseOver = true;
 	}
 }

@@ -32,6 +32,10 @@ public class RewardedAdDummyClient : IRewardedAdClient
 	public void LoadAd(AdRequest request)
 	{
 		Debug.Log("Dummy " + MethodBase.GetCurrentMethod().Name);
+		if (OnAdLoaded != null)
+		{
+			OnAdLoaded(this, EventArgs.Empty);
+		}
 	}
 
 	public bool IsLoaded()
@@ -46,6 +50,12 @@ public class RewardedAdDummyClient : IRewardedAdClient
 	}
 
 	public string MediationAdapterClassName()
+	{
+		Debug.Log("Dummy " + MethodBase.GetCurrentMethod().Name);
+		return null;
+	}
+
+	public Reward GetRewardItem()
 	{
 		Debug.Log("Dummy " + MethodBase.GetCurrentMethod().Name);
 		return null;

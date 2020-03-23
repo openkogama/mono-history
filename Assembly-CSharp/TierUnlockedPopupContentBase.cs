@@ -104,7 +104,7 @@ public class TierUnlockedPopupContentBase : MonoBehaviour
 		}
 	}
 
-	private void HandleSlideTitleText()
+	protected void HandleSlideTitleText()
 	{
 		float t = (Time.time - slideInStartTime) / 0.2f;
 		float y = Mathf.Lerp(titleOriginalYPosition - 300f, titleOriginalYPosition, t);

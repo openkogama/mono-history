@@ -31,7 +31,7 @@ public class DeathPromotionController : MonoBehaviour, IDeathPromotionSelector, 
 		}
 	}
 
-	public void TryShowPromotion(UnityAction<bool> onPromotionPopped)
+	public void TryShowPromotion(UnityAction<bool, bool> onPromotionPopped)
 	{
 		if (adController != null && adController.IsPromotionAvailable)
 		{
@@ -39,7 +39,7 @@ public class DeathPromotionController : MonoBehaviour, IDeathPromotionSelector, 
 		}
 		else
 		{
-			onPromotionPopped?.Invoke(arg0: false);
+			onPromotionPopped?.Invoke(arg0: false, arg1: false);
 		}
 	}
 }

@@ -40,6 +40,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	}
 
 	[SerializeField]
+	protected SentrySdk sentrySdk;
+
+	[SerializeField]
 	protected KoGaMaSettingsContainer koGaMaSettings;
 
 	[SerializeField]
@@ -284,6 +287,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			Debug.unityLogger.filterLogType = LogType.Warning;
 		}
 		PlayerPrefsManager.EarlyInitialize();
+		StatHatWrapper.Initialize(PlayerPrefsManager.IsFirstTimeSession);
 		Debug.Log("Is first time session " + PlayerPrefsManager.IsFirstTimeSession);
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
@@ -520,10 +524,12 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
 		game = new MVNetworkGame();
 		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
+		Debug.Log(DateTime.UtcNow.Millisecond);
 		if (!Game.Join())
 		{
 			Debug.LogError("Failed to connect");
 		}
+		Debug.Log(DateTime.UtcNow.Millisecond);
 	}
 
 	protected virtual void InitWebGL(bool developmentMode)
@@ -629,7 +635,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			Debug.Log("WEBPARAMS: " + sessionDataJson);
 			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(sessionDataJson);
-			StatHatWrapper.Initialize(PlayerPrefsManager.IsFirstTimeSession);
 			Debug.Log(gameSessionData.pingURL);
 			Debug.Log(gameSessionData.disconnectURL);
 			SetGameSessionData(gameSessionData);

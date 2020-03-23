@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
-using SharpRaven;
-using SharpRaven.Data;
 using UnityEngine;
 
 public static class DebugLogHandler
@@ -29,7 +27,7 @@ public static class DebugLogHandler
 
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
-	public static RavenClient RavenClient { get; private set; }
+	public static bool DidConnectToGameServer { get; set; }
 
 	public static bool ErrorDetected { get; private set; }
 
@@ -41,7 +39,6 @@ public static class DebugLogHandler
 
 	public static void SetupSentryClient(string sentryUrl)
 	{
-		RavenClient = new RavenClient(sentryUrl);
 	}
 
 	public static void Init()
@@ -55,7 +52,6 @@ public static class DebugLogHandler
 		errorCount = 0;
 		logErrorHasBeenSendOnce = false;
 		logContextQueue.Clear();
-		RavenClient = null;
 		isSampling = false;
 		ErrorDetected = false;
 		OngoingErrorDetected = false;
@@ -76,36 +72,55 @@ public static class DebugLogHandler
 
 	private static void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
+		try
 		{
-			AddLogToLogContext(logString, type);
-			return;
-		}
-		errorCount++;
-		if (!logErrorHasBeenSendOnce)
-		{
-			firstError = logString;
-			ErrorDetected = true;
-		}
-		if (!logErrorHasBeenSendOnce || SendOnGoingError)
-		{
-			logErrorHasBeenSendOnce = true;
-			if (SendOnGoingError)
+			try
 			{
-				logString = "[Ongoing error] " + logString;
-				OngoingErrorDetected = true;
+				if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
+				{
+					AddLogToLogContext(logString, type);
+					return;
+				}
 			}
-			SendToConsole(logString, stackTrace);
-			ReportError(logString, stackTrace, type);
+			catch (Exception)
+			{
+			}
+			errorCount++;
+			if (!logErrorHasBeenSendOnce)
+			{
+				firstError = logString;
+				ErrorDetected = true;
+			}
+			if (!logErrorHasBeenSendOnce || SendOnGoingError)
+			{
+				logErrorHasBeenSendOnce = true;
+				if (SendOnGoingError)
+				{
+					logString = "[Ongoing error] " + logString;
+					OngoingErrorDetected = true;
+				}
+				SendToConsole(logString, stackTrace);
+				ReportError(logString, stackTrace, type);
+			}
+		}
+		catch (Exception ex2)
+		{
+			Debug.LogWarningFormat("Exception in DebugLogHandler: {0}.", ex2.Message);
 		}
 	}
 
 	private static void ReportError(string logString, string stackTrace, LogType type)
 	{
-		if (MVClientSettings.EnableSentry || isSampling)
+		if (!DidConnectToGameServer)
+		{
+			SentrySdk.OnLogMessageReceived(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+		}
+		else if (MVClientSettings.EnableSentry || isSampling)
 		{
 			logString = SanitizeLogStringForUniqueErrors(logString);
-			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			Dictionary<string, object> extraSentryData = GetExtraSentryData();
+			Dictionary<string, string> tags = GetTags();
+			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, extraSentryData, tags);
 		}
 	}
 
@@ -140,16 +155,6 @@ public static class DebugLogHandler
 		}
 	}
 
-	private static ErrorLevel UnityLogTypeToRavenLevel(LogType logType)
-	{
-		return logType switch
-		{
-			LogType.Log => ErrorLevel.info, 
-			LogType.Warning => ErrorLevel.warning, 
-			_ => ErrorLevel.error, 
-		};
-	}
-
 	private static bool IsIgnored(string logString)
 	{
 		return ignoreLogStrings.Contains(logString);
@@ -171,17 +176,17 @@ public static class DebugLogHandler
 	{
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("Time.frameCount", Time.frameCount);
-		dictionary.Add("BrowserInfo", GetBrowserInfo());
-		dictionary.Add("GameMode", GetGameMode());
-		dictionary.Add("JoinState", GetJoinState());
-		dictionary.Add("PlayersCount", GetPlayersCount());
-		dictionary.Add("PendingPlayersCount", GetPendingPlayersCount());
-		dictionary.Add("Is tourist session", GetIsTouristSession());
-		dictionary.Add("ProfileID", GetProfileID());
-		dictionary.Add("PlanetID", GetPlanetID());
+		dictionary.Add("BrowserInfo", TryGetExtraString(GetBrowserInfo));
+		dictionary.Add("GameMode", TryGetExtraString(GetGameMode));
+		dictionary.Add("JoinState", TryGetExtraString(GetJoinState));
+		dictionary.Add("PlayersCount", TryGetExtraString(GetPlayersCount));
+		dictionary.Add("PendingPlayersCount", TryGetExtraString(GetPendingPlayersCount));
+		dictionary.Add("Is tourist session", TryGetExtraString(GetIsTouristSession));
+		dictionary.Add("ProfileID", TryGetExtraString(GetProfileID));
+		dictionary.Add("PlanetID", TryGetExtraString(GetPlanetID));
 		dictionary.Add("RuntimePlatform", Application.platform.ToString());
-		dictionary.Add("SystemInfo", GetSystemInfo());
-		dictionary.Add("Log Context", GetLogContext());
+		dictionary.Add("SystemInfo", TryGetExtraString(GetSystemInfo));
+		dictionary.Add("Log Context", TryGetExtraString(GetLogContext));
 		if (!string.IsNullOrEmpty(sanitizedString))
 		{
 			sanitizedString.Trim();
@@ -249,6 +254,18 @@ public static class DebugLogHandler
 			return "MVGameController.WOCM is null";
 		}
 		return MVGameControllerBase.Game.MVPlayerContainer.PendingPlayersCount.ToString();
+	}
+
+	private static string TryGetExtraString(Func<string> getFunc)
+	{
+		try
+		{
+			return getFunc();
+		}
+		catch (Exception)
+		{
+		}
+		return "N/A";
 	}
 
 	private static string GetSystemInfo()

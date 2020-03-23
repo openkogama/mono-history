@@ -25,6 +25,8 @@ public interface IRewardedAdClient
 
 	string MediationAdapterClassName();
 
+	Reward GetRewardItem();
+
 	void Show();
 
 	void SetServerSideVerificationOptions(ServerSideVerificationOptions serverSideVerificationOptions);

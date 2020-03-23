@@ -16,4 +16,6 @@ public interface IMobileAdsClient
 	void SetiOSAppPauseOnBackground(bool pause);
 
 	float GetDeviceScale();
+
+	int GetDeviceSafeWidth();
 }

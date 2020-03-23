@@ -36,6 +36,12 @@ public class MediationTestSuite
 		client.OnMediationTestSuiteDismissed += HandleMediationTestSuiteDismissed;
 	}
 
+	public static void Show()
+	{
+		Instance.CallShow();
+	}
+
+	[Obsolete("Use MediationTestSuite.Show() instead", false)]
 	public static void Show(string appId)
 	{
 		Instance.CallShow(appId);
@@ -57,5 +63,10 @@ public class MediationTestSuite
 	private void CallShow(string appId)
 	{
 		client.Show(appId);
+	}
+
+	private void CallShow()
+	{
+		client.Show();
 	}
 }

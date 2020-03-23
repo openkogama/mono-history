@@ -81,7 +81,7 @@ public class AdRequest
 		}
 	}
 
-	public const string Version = "3.18.1";
+	public const string Version = "4.2.1";
 
 	public const string TestDeviceSimulator = "SIMULATOR";
 

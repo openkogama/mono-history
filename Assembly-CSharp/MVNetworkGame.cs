@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.Text;
 using CodeStage.AntiCheat.ObscuredTypes;
 using ExitGames.Client.Photon;
@@ -1172,17 +1171,17 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.SendOperation(113, dictionary, SendOptions.SendReliable);
 		}
 
-		public void ClaimGamePointWelcomeReward(bool doubleReward = false)
+		public void ClaimGamePointWelcomeReward()
 		{
-			if (gamepointWelcomeClaimed)
+			if (!gamepointWelcomeClaimed)
 			{
-				throw new Exception("ClaimGamePointWelcomeReward being called twice on the client side");
+				gamepointWelcomeClaimed = true;
+				peer.SendOperation(109, new Dictionary<byte, object>(), SendOptions.SendReliable);
 			}
-			gamepointWelcomeClaimed = true;
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(208, doubleReward);
-			Dictionary<byte, object> operationParameters = dictionary;
-			peer.SendOperation(109, operationParameters, SendOptions.SendReliable);
+			else
+			{
+				Debug.LogError("ClaimGamePointWelcomeReward being called twice on the client side");
+			}
 		}
 
 		public void AddObjectLink(ObjectLink link)
@@ -2526,6 +2525,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			switch (returnCode)
 			{
 			case StatusCode.Connect:
+				DebugLogHandler.DidConnectToGameServer = true;
 				MVGameControllerBase.OperationRequests.JoinGame();
 				break;
 			case StatusCode.Disconnect:
@@ -2898,20 +2898,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	public bool Join()
 	{
 		ConnState = MVConnState.Connecting;
-		try
-		{
-			return Peer.Connect(MVGameControllerBase.GameSessionData.serverIP, "MVGameServer");
-		}
-		catch (SecurityException ex)
-		{
-			Debug.LogError("Security Exception (check policy file): " + ex);
-			return false;
-		}
-		catch (Exception ex2)
-		{
-			Debug.LogError("Unknown exception during connect: '" + ex2.ToString() + "', Message: '" + ex2.Message + "'");
-			return false;
-		}
+		return Peer.Connect(MVGameControllerBase.GameSessionData.serverIP, "MVGameServer");
 	}
 
 	private static void GeneratePlanetScreenShot(Action<byte[]> callback)

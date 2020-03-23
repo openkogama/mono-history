@@ -4,6 +4,9 @@ using UnityEngine.Events;
 
 public class CloseApp : MonoBehaviour
 {
+	[SerializeField]
+	private ConfirmationPopup closeAppPopupPrefab;
+
 	public void Close()
 	{
 		UnityAction<bool, ConfirmationPopup> quit = (bool confirmation, ConfirmationPopup popup) =>

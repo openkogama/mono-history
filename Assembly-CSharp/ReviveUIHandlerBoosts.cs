@@ -34,6 +34,8 @@ public class ReviveUIHandlerBoosts : ReviveUIHandlerBase
 
 	private GamePassTier tier;
 
+	protected override AdContext AdContext => AdContext.Reboost;
+
 	public override void Initialize(UnityAction onContinueClicked)
 	{
 		base.Initialize(onContinueClicked);

@@ -96,6 +96,11 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	{
 		if (buttonFader.IsPaused)
 		{
+			if (!isGhost)
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SpawnAsGhost();
+				isGhost = true;
+			}
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Pop();
@@ -137,6 +142,10 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		if (wantsToPlay && num <= 0f)
 		{
 			wantsToPlay = false;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
 			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 	}
@@ -170,7 +179,7 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		}
 	}
 
-	private void ReadyToSpawn(bool promotionPushedToStack)
+	private void ReadyToSpawn(bool promotionPushedToStack, bool withAd)
 	{
 		float num = 1f - (Time.time - startTime) / timeUntilGhostMode;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.SpawnRoleMode.Value == SpawnRoleModeType.Dead || num > 0f)
@@ -185,6 +194,10 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		}
 		else
 		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
 			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 	}

@@ -3,7 +3,6 @@ namespace Assets.Scripts.AdIntegration;
 public enum AdContext
 {
 	None,
-	ShowDailyCrystals,
 	Booster,
 	CloseApp,
 	TouristPromotion,

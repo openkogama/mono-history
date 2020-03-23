@@ -15,6 +15,8 @@ public class ReviveUIHandler : ReviveUIHandlerBase
 
 	private GameObject bodyClone;
 
+	protected override AdContext AdContext => AdContext.Revive;
+
 	public override void Initialize(UnityAction onContinueClicked)
 	{
 		base.Initialize(onContinueClicked);

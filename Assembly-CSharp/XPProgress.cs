@@ -39,7 +39,6 @@ public class XPProgress
 	{
 		if (xpProgressData.Level != level)
 		{
-			Debug.LogWarning("Implement XPAPI");
 			AsyncWWWManager.WWWRequest(new GetRequest(Urls.XPLimit + level, XPLimitsCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 	}

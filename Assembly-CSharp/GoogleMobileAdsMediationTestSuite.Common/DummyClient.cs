@@ -25,4 +25,9 @@ public class DummyClient : IMediationTestClient
 	{
 		Debug.Log("Dummy " + MethodBase.GetCurrentMethod().Name);
 	}
+
+	public void Show()
+	{
+		Debug.Log("Dummy " + MethodBase.GetCurrentMethod().Name);
+	}
 }
