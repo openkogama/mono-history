@@ -28,6 +28,8 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 OutputConnectorOffset => Vector3.right * 1.5f;
 
 	public override Vector3 InputConnectorOffset => Vector3.left * 1.5f;

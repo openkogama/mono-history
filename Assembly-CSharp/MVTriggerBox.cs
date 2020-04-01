@@ -10,6 +10,8 @@ public class MVTriggerBox : MVLogicObject, ITriggerBoxEventsHandler
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0f, 0f);
 
 	public MVTriggerBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

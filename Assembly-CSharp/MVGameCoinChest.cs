@@ -28,6 +28,8 @@ public class MVGameCoinChest : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override bool Visible
 	{
 		get

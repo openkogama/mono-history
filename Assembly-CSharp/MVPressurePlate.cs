@@ -26,6 +26,8 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0.25f, 0f);
 
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
@@ -68,7 +70,10 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 		outputSignalTransmitter = new OutputSignalTransmitter(Id);
 		useInteractor.UpdateData(Data);
 		SetVisibility();
-		SetupCulling(plateObject.gameObject);
+		if ((MVGameControllerBase.EditModeUI == null && HasVisualsInPlaymode && IsVisible()) || MVGameControllerBase.EditModeUI != null)
+		{
+			SetupCulling(plateObject.TriggerBoxLogic);
+		}
 		isDown = (ObscuredBool)RunTimeData.GetObscuredType("triggerBoxState");
 	}
 

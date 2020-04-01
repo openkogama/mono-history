@@ -3,60 +3,148 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public static class DebugLogHandler
+public class DebugLogHandler : MonoBehaviour
 {
+	private class StatHatErrorCount
+	{
+		private bool reportedError;
+
+		private bool reportedOngoingError;
+
+		public void Increment(bool errorDetected, bool onGoingErrorDetected)
+		{
+			try
+			{
+				if (errorDetected == onGoingErrorDetected)
+				{
+					Debug.LogWarning("An errorDetected and onGoingErrorDetected cannot have the same value: " + errorDetected);
+					return;
+				}
+				if (onGoingErrorDetected)
+				{
+					IncrementErrorCountOnGoing();
+				}
+				if (errorDetected)
+				{
+					IncrementErrorCount();
+				}
+			}
+			catch (Exception exception)
+			{
+				Debug.LogException(exception);
+			}
+		}
+
+		private void IncrementErrorCountOnGoing()
+		{
+			if (!reportedOngoingError)
+			{
+				StatHatWrapper.Count("errorcountongoing", 1);
+				reportedOngoingError = true;
+			}
+		}
+
+		private void IncrementErrorCount()
+		{
+			if (!reportedError)
+			{
+				StatHatWrapper.Count("errorcount", 1);
+				reportedError = true;
+			}
+		}
+	}
+
 	private const int maxErrorBeforeReport = 50;
-
-	private static int errorCount = 0;
-
-	private static bool logErrorHasBeenSendOnce = false;
-
-	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
-
-	private static string sanitizedString;
-
-	private const int maxLogContextQueueCount = 4;
 
 	private const int sampleErrorFrequency = 100;
 
-	private static bool isSampling = false;
-
 	private static List<string> sanitizeLogSubstrings = new List<string> { "Could not allocate memory: System out of memory!", "Failed to update dynamic font", "Screen position out of view frustum" };
-
-	private static string firstError = string.Empty;
 
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
-	public static bool DidConnectToGameServer { get; set; }
+	private int maxLogContextQueueCount = 4;
 
-	public static bool ErrorDetected { get; private set; }
+	private ProxyLogHandler kogamaLogHandler;
 
-	public static bool OngoingErrorDetected { get; private set; }
+	private StatHatErrorCount statHatErrorCount = new StatHatErrorCount();
 
-	private static bool SendOnGoingError => 50 == errorCount;
+	[SerializeField]
+	private SentrySdk sentrySdk;
 
-	public static bool IsSampling => true;
+	private int timeFrameCount;
 
-	public static void SetupSentryClient(string sentryUrl)
+	private int errorCount;
+
+	private bool logErrorHasBeenSendOnce;
+
+	private Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
+
+	private string sanitizedString;
+
+	private bool isSampling;
+
+	private bool isInBrokenState;
+
+	private static bool didConnectToGameServer = false;
+
+	private static string firstError = string.Empty;
+
+	public static bool DidConnectToGameServer
 	{
+		get
+		{
+			return didConnectToGameServer;
+		}
+		set
+		{
+			didConnectToGameServer = value;
+		}
 	}
 
-	public static void Init()
+	private bool SendOnGoingError => 50 == errorCount;
+
+	private bool AlwaysSampling => true;
+
+	public void Initialize(DebugLogHandlerConfig debugLogHandlerConfig, SentryConfig sentryConfig)
 	{
-		isSampling = UnityEngine.Random.Range(0, 101) == 100;
+		maxLogContextQueueCount = debugLogHandlerConfig.maxLogContextQueueCount;
+		if (debugLogHandlerConfig.useProxyLogHandler)
+		{
+			kogamaLogHandler = new ProxyLogHandler();
+			kogamaLogHandler.OnLogReceived += KogamaLogHandlerOnOnLogReceived;
+			kogamaLogHandler.filterLogTypeConsoleWrite = debugLogHandlerConfig.proxyLogHandlerConfig.filterLogTypeConsoleWrite;
+		}
+		isSampling = UnityEngine.Random.Range(0, 101) == 100 || AlwaysSampling || !debugLogHandlerConfig.useSamplingOnAndroidAndWebGL;
 		Application.logMessageReceived += HandleLog;
+		sentrySdk.Initialize(sentryConfig);
 	}
 
-	public static void Reset()
+	private void KogamaLogHandlerOnOnLogReceived(object sender, ProxyLogHandler.LogFormatData e)
+	{
+		kogamaLogHandler.OnLogReceived -= KogamaLogHandlerOnOnLogReceived;
+		AddLogToLogContext(e.Message, e.LogType);
+		kogamaLogHandler.OnLogReceived += KogamaLogHandlerOnOnLogReceived;
+	}
+
+	public void Destroy()
 	{
 		errorCount = 0;
 		logErrorHasBeenSendOnce = false;
 		logContextQueue.Clear();
 		isSampling = false;
-		ErrorDetected = false;
-		OngoingErrorDetected = false;
+		if (isInBrokenState)
+		{
+			isInBrokenState = false;
+			return;
+		}
 		try
 		{
+			if (kogamaLogHandler != null)
+			{
+				kogamaLogHandler.Disable();
+				kogamaLogHandler.OnLogReceived -= KogamaLogHandlerOnOnLogReceived;
+				kogamaLogHandler = null;
+			}
 			Application.logMessageReceived -= HandleLog;
 		}
 		catch (Exception ex)
@@ -65,57 +153,72 @@ public static class DebugLogHandler
 		}
 	}
 
-	public static void ForceExtraErrorReport()
+	private void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		logErrorHasBeenSendOnce = false;
-	}
-
-	private static void HandleLog(string logString, string stackTrace, LogType type)
-	{
+		Application.logMessageReceived -= HandleLog;
 		try
 		{
-			try
-			{
-				if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
-				{
-					AddLogToLogContext(logString, type);
-					return;
-				}
-			}
-			catch (Exception)
-			{
-			}
-			errorCount++;
-			if (!logErrorHasBeenSendOnce)
-			{
-				firstError = logString;
-				ErrorDetected = true;
-			}
-			if (!logErrorHasBeenSendOnce || SendOnGoingError)
-			{
-				logErrorHasBeenSendOnce = true;
-				if (SendOnGoingError)
-				{
-					logString = "[Ongoing error] " + logString;
-					OngoingErrorDetected = true;
-				}
-				SendToConsole(logString, stackTrace);
-				ReportError(logString, stackTrace, type);
-			}
+			HandleLogExecute(logString, stackTrace, type);
 		}
-		catch (Exception ex2)
+		catch (Exception exception)
 		{
-			Debug.LogWarningFormat("Exception in DebugLogHandler: {0}.", ex2.Message);
+			isInBrokenState = true;
+			Debug.LogException(exception);
+			return;
+		}
+		Application.logMessageReceived += HandleLog;
+	}
+
+	private static string CleanStackTrace(string stackTrace)
+	{
+		string[] separator = new string[1] { "UnityEngine.Debug:LogError(Object)\n" };
+		string[] array = stackTrace.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+		if (array.Length != 2)
+		{
+			return stackTrace;
+		}
+		return array[1];
+	}
+
+	private void HandleLogExecute(string logString, string stackTrace, LogType type)
+	{
+		if (AddLogToLogContext(logString, type))
+		{
+			return;
+		}
+		if (type == LogType.Error)
+		{
+			stackTrace = CleanStackTrace(stackTrace);
+		}
+		errorCount++;
+		bool errorDetected = false;
+		if (!logErrorHasBeenSendOnce)
+		{
+			firstError = logString;
+			errorDetected = true;
+		}
+		if (!logErrorHasBeenSendOnce || SendOnGoingError)
+		{
+			logErrorHasBeenSendOnce = true;
+			bool onGoingErrorDetected = false;
+			if (SendOnGoingError)
+			{
+				logString = "[Ongoing error] " + logString;
+				onGoingErrorDetected = true;
+			}
+			SendToConsole(logString, stackTrace);
+			ReportError(logString, stackTrace, type);
+			statHatErrorCount.Increment(errorDetected, onGoingErrorDetected);
 		}
 	}
 
-	private static void ReportError(string logString, string stackTrace, LogType type)
+	private void ReportError(string logString, string stackTrace, LogType type)
 	{
 		if (!DidConnectToGameServer)
 		{
-			SentrySdk.OnLogMessageReceived(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			sentrySdk.OnLogMessageReceived(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
-		else if (MVClientSettings.EnableSentry || isSampling)
+		else if (isSampling)
 		{
 			logString = SanitizeLogStringForUniqueErrors(logString);
 			Dictionary<string, object> extraSentryData = GetExtraSentryData();
@@ -124,7 +227,7 @@ public static class DebugLogHandler
 		}
 	}
 
-	private static string SanitizeLogStringForUniqueErrors(string logString)
+	private string SanitizeLogStringForUniqueErrors(string logString)
 	{
 		for (int i = 0; i < sanitizeLogSubstrings.Count; i++)
 		{
@@ -150,8 +253,9 @@ public static class DebugLogHandler
 			}
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, text);
 		}
-		catch
+		catch (Exception exception)
 		{
+			Debug.LogException(exception);
 		}
 	}
 
@@ -160,19 +264,29 @@ public static class DebugLogHandler
 		return ignoreLogStrings.Contains(logString);
 	}
 
-	private static void AddLogToLogContext(string logString, LogType type)
+	private bool AddLogToLogContext(string logString, LogType type)
 	{
+		if ((!IsIgnored(logString) || type != LogType.Error) && type != LogType.Warning && type != LogType.Log)
+		{
+			return false;
+		}
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
-		dictionary.Add("Frame", Time.frameCount);
+		dictionary.Add("Frame", timeFrameCount);
 		dictionary.Add(type.ToString(), logString);
 		logContextQueue.Enqueue(dictionary);
-		if (logContextQueue.Count > 4)
+		if (logContextQueue.Count > maxLogContextQueueCount)
 		{
 			logContextQueue.Dequeue();
 		}
+		return true;
 	}
 
-	private static Dictionary<string, object> GetExtraSentryData()
+	private void Update()
+	{
+		timeFrameCount = Time.frameCount;
+	}
+
+	private Dictionary<string, object> GetExtraSentryData()
 	{
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("Time.frameCount", Time.frameCount);
@@ -202,10 +316,17 @@ public static class DebugLogHandler
 	private static Dictionary<string, string> GetTags()
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("Version", MVGameControllerBase.KoGaMaSettings.VersionString);
-		dictionary.Add("ReleaseName", MVGameControllerBase.KoGaMaSettings.ReleaseName);
-		dictionary.Add("JoinState", MVGameControllerBase.JoinState.ToString());
-		dictionary.Add("Source", "standalone");
+		try
+		{
+			dictionary.Add("Version", MVGameControllerBase.KoGaMaSettings.VersionString);
+			dictionary.Add("ReleaseName", MVGameControllerBase.KoGaMaSettings.ReleaseName);
+			dictionary.Add("JoinState", MVGameControllerBase.JoinState.ToString());
+			dictionary.Add("Source", "standalone");
+		}
+		catch
+		{
+			dictionary.Add("TagsN/A", "GetTagsException");
+		}
 		return dictionary;
 	}
 
@@ -262,10 +383,10 @@ public static class DebugLogHandler
 		{
 			return getFunc();
 		}
-		catch (Exception)
+		catch
 		{
+			return "N/A";
 		}
-		return "N/A";
 	}
 
 	private static string GetSystemInfo()
@@ -310,7 +431,7 @@ public static class DebugLogHandler
 		return text;
 	}
 
-	private static string GetLogContext()
+	private string GetLogContext()
 	{
 		string text = string.Empty;
 		foreach (Dictionary<string, object> item in logContextQueue)

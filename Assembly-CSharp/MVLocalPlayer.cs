@@ -206,12 +206,7 @@ public abstract class MVLocalPlayer : MVPlayer
 		{
 			OnXPProgressData(xpProgressData);
 		}
-		Dictionary<object, object> dictionary = new Dictionary<object, object>();
-		dictionary.Add((byte)4, xpProgressData.XPDelta);
-		dictionary.Add((byte)1, xpProgressData.XPString);
-		dictionary.Add((byte)19, xpProgressData.MemberCount);
-		Dictionary<object, object> data = dictionary;
-		NotificationController.OnNotificationReceived(NotificationType.XP, data);
+		NotificationController.PushNotification(string.Format(TM._("You gained {0} XP!"), xpProgressData.XPDelta));
 		MVGameControllerBase.GameEventManager.NotifyXPDeltaAmount(xpProgressData.XPDelta);
 	}
 

@@ -18,6 +18,15 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 	[SerializeField]
 	private ContinueButtonLockCursor continueButtonPrefab;
 
+	[SerializeField]
+	private Image adIcon;
+
+	[SerializeField]
+	private Image playIcon;
+
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private bool isMouseOver;
 
 	public Action OnPlayButtonPressed;
@@ -146,6 +155,20 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 	private void OnEnable()
 	{
 		button.interactable = true;
+		if (MVGameControllerBase.IsTouristSession)
+		{
+			EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+			bool readyForAd = false;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+			{
+				readyForAd = x.ReadyForAd;
+			});
+			SpawnRoleModeType value = MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value;
+			bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+			bool flag2 = !currentSiteData.showTouristPromotion && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest && readyForAd && (value == SpawnRoleModeType.Dead || value == SpawnRoleModeType.Hidden) && !flag;
+			playIcon.gameObject.SetActive(!flag2);
+			adIcon.gameObject.SetActive(flag2);
+		}
 	}
 
 	protected virtual bool HandlePlayAvailable()

@@ -13,6 +13,8 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVSmoke(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

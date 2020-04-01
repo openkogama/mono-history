@@ -27,14 +27,20 @@ public class RegisteredPromotionPopup : MonoBehaviour
 	[SerializeField]
 	private Button continueButton;
 
+	[SerializeField]
+	private Image adIcon;
+
 	private bool waitingForAd;
 
 	private float startTime;
 
 	private float timeoutDelay = 20f;
 
-	public void Initialize(bool isEmbeddedPromotion)
+	private bool withAd;
+
+	public void Initialize(bool isEmbeddedPromotion, bool withAd)
 	{
+		this.withAd = withAd;
 		if (isEmbeddedPromotion)
 		{
 			looksData.RandomizePromotion();
@@ -46,6 +52,7 @@ public class RegisteredPromotionPopup : MonoBehaviour
 			Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
 			redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();
 		}
+		adIcon.gameObject.SetActive(withAd);
 	}
 
 	protected void OnDestroy()
@@ -76,6 +83,11 @@ public class RegisteredPromotionPopup : MonoBehaviour
 
 	public void OnViewAdClicked()
 	{
+		if (!withAd)
+		{
+			OnContinueClicked();
+			return;
+		}
 		Debug.Log("Showing Ad");
 		waitingForAd = true;
 		continueButton.interactable = false;

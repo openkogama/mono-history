@@ -10,6 +10,8 @@ public class MVRoundCube : MVLogicObject
 
 	public int DurationInMilliseconds => (int)Data["interval"] * 1000;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public MVRoundCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVRoundCubePrefab, worldObjects)
 	{

@@ -29,6 +29,12 @@ public class InGameMenu : MonoBehaviour
 	[SerializeField]
 	private GameObject claimGoldRewardPopupPrefab;
 
+	[SerializeField]
+	private GameObject accessoryShopButton;
+
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private GamePassesUI gamePassesUI;
 
 	public void Initialize()
@@ -36,8 +42,11 @@ public class InGameMenu : MonoBehaviour
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool flag = MVGameControllerBase.EditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
 		playReward.gameObject.SetActive(value: false);
-		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
-		touristRegisterButton.SetActive(active);
+		bool flag2 = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool flag3 = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		touristRegisterButton.SetActive(flag2 && flag3);
+		accessoryShopButton.SetActive(!MVGameControllerBase.IsTouristSession || (MVGameControllerBase.IsTouristSession && flag3));
 		if (flag)
 		{
 			playReward.Initialize();

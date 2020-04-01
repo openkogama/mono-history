@@ -10,6 +10,8 @@ public class MVAnd : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVAnd(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

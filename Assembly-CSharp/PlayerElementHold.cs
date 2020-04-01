@@ -27,10 +27,19 @@ public class PlayerElementHold : MonoBehaviour
 	[SerializeField]
 	private List<Image> backgrounds;
 
+	[SerializeField]
+	private Image redDot;
+
 	public void Initialize(MVPlayer player, GameStatCounterType typeToDisplay, int scoreValue)
 	{
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		bool flag = friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted;
+		redDot.gameObject.SetActive(value: false);
+		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Pending)
+		{
+			bool flag2 = MVGameControllerBase.Game.Friends.Friends.ContainsValue(friendByProfileID);
+			redDot.gameObject.SetActive(!flag2);
+		}
 		if (flag)
 		{
 			playerName.color = Styles.GetColor(ColorStyle.FriendGreen);

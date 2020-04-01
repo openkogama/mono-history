@@ -6,6 +6,8 @@ public class MVGravityCube : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public MVGravityCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVGravityCubePrefab, worldObjects)
 	{

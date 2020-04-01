@@ -73,6 +73,9 @@ public class BoostMenuItem : MonoBehaviour
 	[SerializeField]
 	private float activeIconScaleEffectDuration;
 
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private float activeIconScaleEffectStartTime;
 
 	private Boost boost;
@@ -118,8 +121,10 @@ public class BoostMenuItem : MonoBehaviour
 		boostActiveUI.SetActive(boostUnlocked);
 		getWithAd.gameObject.SetActive(!boostUnlocked && flag);
 		getWithAdDisabled.gameObject.SetActive(!boostUnlocked && !flag);
-		getWithGold.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
 		buttonAdImage.SetActive(MVGameControllerBase.GameMode != MVGameMode.Edit);
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool flag2 = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		getWithGold.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit && flag2);
 	}
 
 	private void ActivateActiveBoostIconEffect()

@@ -1,9 +1,9 @@
 {
-    "id": "8f6cf6d7-c509-47c9-bd4d-667d4acefae7",
-    "version": "2.27.8",
+    "id": "15ffb20f-7567-4c40-80de-28572944deb3",
+    "version": "2.28.7",
     "unityVersion": "2018.3.14f1",
-    "timestamp": 1584964465,
-    "sha256": "b41d6f725e61d8ba2cf4567eb6e52e38135fcdb15b564061c3bea7dd57fe1171",
+    "timestamp": 1585755873,
+    "sha256": "e9b61baf536e52f53403774b599c6d81f3b8fe887d29a2854460d552c2cdf1ac",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
@@ -77,7 +77,6 @@
         "UnityEngine.WindModule.dll",
         "UnityEngine.XRModule.dll",
         "UnityEngine.dll",
-        "mscorlib.dll",
-        "websocket-sharp.dll"
+        "mscorlib.dll"
     ]
 }

@@ -19,6 +19,8 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public Color SkyboxColor
 	{
 		get

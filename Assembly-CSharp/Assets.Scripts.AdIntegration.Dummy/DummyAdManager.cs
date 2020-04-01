@@ -9,9 +9,13 @@ public class DummyAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUp
 
 	private float startTime;
 
-	private float delay = 2f;
+	private float delay = 1.5f;
 
 	private bool rewarded;
+
+	private bool timeoutAsEnabled;
+
+	private int timeoutSuccessDelay = 30;
 
 	public string RewardedAdNotAvailableText => TM._("Ads not set up for this build target.");
 
@@ -24,6 +28,12 @@ public class DummyAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUp
 	public bool ReadyForRewardedAdRequest => true;
 
 	public bool ReadyForInterstitialAdRequest => true;
+
+	public void InitializeAdConfigSettings(AdConfigSettings config)
+	{
+		timeoutAsEnabled = config.AdTimeoutAsSuccess;
+		timeoutSuccessDelay = config.AdTimeoutAsSuccessDelay;
+	}
 
 	public void InitializeCallbackManager(IAdUIManager handler)
 	{
@@ -65,6 +75,13 @@ public class DummyAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUp
 	{
 		if (adUIHandler.AdShowing() && Time.time > startTime + delay)
 		{
+			RewardedAdResult adResult = RewardedAdResult.RewardUnlocked;
+			Debug.Log($"rewarded {rewarded}, timeoutAsEnabled {timeoutAsEnabled}, Time.time - startTime {Time.time - startTime}, timeoutSuccessDelay {timeoutSuccessDelay}");
+			if (rewarded && timeoutAsEnabled && Time.time - startTime >= (float)timeoutSuccessDelay)
+			{
+				Debug.Log("timeout");
+				adResult = RewardedAdResult.RewardUnlocked;
+			}
 			Debug.Log("ad finished");
 			if (!rewarded)
 			{
@@ -72,7 +89,7 @@ public class DummyAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUp
 			}
 			else
 			{
-				adUIHandler.PopRewardedVideo(RewardedAdResult.RewardUnlocked);
+				adUIHandler.PopRewardedVideo(adResult);
 			}
 		}
 	}

@@ -9,6 +9,8 @@ public class TeamEditor : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public TeamEditor(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.TeamEditorPrefab, worldObjects)
 	{

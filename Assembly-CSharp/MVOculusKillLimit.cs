@@ -7,6 +7,8 @@ public class MVOculusKillLimit : MVGamePointRewardLogicObject
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.OculusKillWinCondition;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	private int KillLimit => (int)Data["killLimit"];
 
 	protected override int GamePointRewardAmount => GetGamePointsRewardAmount(Data) * KillLimit;

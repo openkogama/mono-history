@@ -22,6 +22,8 @@ public class TriggerCube : MVLogicObject, IIsLogicObjectFiringEventHandler, ILog
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public override Vector3 OutputConnectorOffset => outputConnectorOffset;
 
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
@@ -71,9 +73,12 @@ public class TriggerCube : MVLogicObject, IIsLogicObjectFiringEventHandler, ILog
 		objPrefab.SetScale(new Vector3(num, num2, num3));
 		outputConnectorOffset.x = 1f + num / 2f;
 		outputConnectorObject.transform.localPosition = outputConnectorOffset;
-		cullingSubscriberBase.Destroy();
-		float radius = Mathf.Max(num, num2, num3, 2f);
-		cullingSubscriberBase = new CullingSubscriberBase(radius, WorldPosition, OnStateChanged);
+		if (MVGameControllerBase.EditModeUI != null && HasVisualsInPlaymode)
+		{
+			float radius = Mathf.Max(num, num2, num3, 2f);
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = new CullingSubscriberBase(radius, WorldPosition, OnStateChanged);
+		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

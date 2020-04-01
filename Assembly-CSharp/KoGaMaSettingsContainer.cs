@@ -23,9 +23,6 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	private TextAsset additionalMetaData;
 
 	[SerializeField]
-	private TextAsset regionTag;
-
-	[SerializeField]
 	private int versionBuild;
 
 	[SerializeField]
@@ -55,8 +52,6 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	public int VersionCode => int.Parse(versionText.text);
 
 	public string ReleaseName => additionalMetaData.text;
-
-	public string RegionTag => regionTag.text;
 
 	public int LocalDiscCacheAssetVersion => streamingAssetVersion;
 

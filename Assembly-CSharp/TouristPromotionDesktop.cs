@@ -17,6 +17,12 @@ public class TouristPromotionDesktop : TouristPromotion
 	[SerializeField]
 	private GameObject goToKogamaPopupPrefab;
 
+	[SerializeField]
+	private GameObject signupButton;
+
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	protected override void Start()
 	{
 		base.Start();
@@ -24,6 +30,8 @@ public class TouristPromotionDesktop : TouristPromotion
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 		Debug.Log("Referrer: " + MVGameControllerBase.GameSessionData.referrer);
 		redirectButton.SetActive(MVGameControllerBase.GameSessionData.embedded);
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		signupButton.SetActive(currentSiteData.allowsRedirectToWebpage || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsModals);
 		Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
 		redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();
 	}
@@ -31,7 +39,24 @@ public class TouristPromotionDesktop : TouristPromotion
 	public void SignupCallback()
 	{
 		StatHatWrapper.Count("TouristPromotion.Kogama.Signup", 1);
-		BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		if (currentSiteData.allowsModals)
+		{
+			BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
+			return;
+		}
+		if (currentSiteData.allowsOpenInNewTab)
+		{
+			BrowserCommGotoRequests.GotoSignup(newTab: true);
+			return;
+		}
+		if (currentSiteData.allowsRedirectToWebpage)
+		{
+			BrowserCommGotoRequests.GotoSignup();
+			return;
+		}
+		Debug.Log(currentSiteData.siteEnum);
+		Debug.LogError("Signup not permitted for site.");
 	}
 
 	public void LoginCallback()
@@ -43,10 +68,10 @@ public class TouristPromotionDesktop : TouristPromotion
 	{
 		if (MVGameControllerBase.Game.LocalPlayer.IsTourist)
 		{
-			if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
+			if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed() && (embeddedPlayerConfig.GetCurrentSiteData().allowsRedirectToWebpage || embeddedPlayerConfig.GetCurrentSiteData().allowsOpenInNewTab))
 			{
 				StatHatWrapper.Count("TouristPromotion.Kogama.Redirect", 1);
-				BrowserCommGotoRequests.GotoMainpage(newTab: true);
+				BrowserCommGotoRequests.GotoMainpage(!embeddedPlayerConfig.GetCurrentSiteData().allowsRedirectToWebpage);
 			}
 			else
 			{

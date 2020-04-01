@@ -45,6 +45,8 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 InputConnectorOffset => new Vector3(-2f, 0f, 0f);
 
 	public HashSet<int> RaycastIgnoreWorldObjectIds { get; set; }

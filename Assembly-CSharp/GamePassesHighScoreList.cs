@@ -54,6 +54,9 @@ public class GamePassesHighScoreList : MonoBehaviour
 	[SerializeField]
 	private float topPadding = 40f;
 
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private Dictionary<GamePassesHighScoreListState, HighScoreListData> highScoreListDatas = new Dictionary<GamePassesHighScoreListState, HighScoreListData>();
 
 	private GamePassesHighScoreListState currentState;
@@ -69,7 +72,9 @@ public class GamePassesHighScoreList : MonoBehaviour
 		{
 			SetToLocalPlayerHighScore();
 		}
-		if (MVGameControllerBase.IsTouristSession)
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool flag = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		if (MVGameControllerBase.IsTouristSession && flag)
 		{
 			GameObject informationPopup = UnityEngine.Object.Instantiate(touristInformationPopup);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>

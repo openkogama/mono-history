@@ -33,6 +33,8 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject, IUpdatecontrollerSu
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public WindTurbine(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

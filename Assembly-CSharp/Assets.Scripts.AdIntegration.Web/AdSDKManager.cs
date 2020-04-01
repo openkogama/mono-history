@@ -70,6 +70,12 @@ public class AdSDKManager : IAdManager
 		}
 	}
 
+	public void InitializeAdConfigSettings(AdConfigSettings config)
+	{
+		Debug.Log("AdSDKManager is used by the WebAdManager and shouldn't be initialized in this way as of now");
+		throw new NotImplementedException();
+	}
+
 	public void InitializeCallbackManager(IAdUIManager handler)
 	{
 		Debug.Log("AdSDKManager is used by the WebAdManager and shouldn't rely on the ui handler itself. the web ad manager handles this");

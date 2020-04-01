@@ -37,11 +37,19 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 	private Sprite watchAdPlayButtonImageSprite;
 
 	[SerializeField]
+	private Sprite playButtonImageSprite;
+
+	[SerializeField]
 	private GamePassesTextBubble signupToRemoveAds;
+
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
 
 	private bool shouldUpdateFillImage;
 
 	private bool isMoveOverButton;
+
+	private bool showingAdSprite;
 
 	private bool shouldPop;
 
@@ -66,11 +74,12 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		{
 			countdownFill.enabled = false;
 		}
-		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null)
+		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null && embeddedPlayerConfig.GetCurrentSiteData().showPlayButtonAd && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest)
 		{
 			Debug.Log("Lobby state button interstitial.");
 			countdownFill.enabled = false;
 			shouldUpdateFillImage = false;
+			showingAdSprite = true;
 			playButtonImage.sprite = watchAdPlayButtonImageSprite;
 		}
 	}
@@ -78,6 +87,16 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 	private void Update()
 	{
 		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+		if (!MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest && showingAdSprite)
+		{
+			playButtonImage.sprite = playButtonImageSprite;
+			showingAdSprite = false;
+		}
+		else if (MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest && !showingAdSprite)
+		{
+			playButtonImage.sprite = watchAdPlayButtonImageSprite;
+			showingAdSprite = true;
+		}
 		if (flag && shouldUpdateFillImage)
 		{
 			countdownFill.fillAmount = MVGameControllerBase.Game.NetworkGameStateListener.CountdownInPercentage;
@@ -159,7 +178,8 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 
 	private void RequestAdWithCallback(Action<InterstitialAdResult> callback)
 	{
-		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null)
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null && currentSiteData.showPlayButtonAd)
 		{
 			MVGameControllerBase.AdManager.RequestInterstitial(callback, AdContext.PlayButtonAd);
 		}

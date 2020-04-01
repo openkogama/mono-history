@@ -8,6 +8,8 @@ public class MVBattery : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVBattery(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

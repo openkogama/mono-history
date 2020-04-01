@@ -21,4 +21,6 @@ public interface IAdManager
 	void RequestInterstitial(Action<InterstitialAdResult> interstitialCallback, AdContext context);
 
 	void InitializeCallbackManager(IAdUIManager handler);
+
+	void InitializeAdConfigSettings(AdConfigSettings config);
 }

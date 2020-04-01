@@ -34,6 +34,15 @@ public class PlayerSocialPopup : MonoBehaviour
 	[SerializeField]
 	private GameObject isFriendTextObject;
 
+	[SerializeField]
+	private Button manageUserButton;
+
+	[SerializeField]
+	private AdminToolController adminToolsPrefab;
+
+	[SerializeField]
+	private OwnerToolController ownerToolsPrefab;
+
 	private int profileId;
 
 	private Friend friend;
@@ -43,6 +52,9 @@ public class PlayerSocialPopup : MonoBehaviour
 		profileId = remotePlayerProfileId;
 		playerName.text = name;
 		subscriberFrame.SetActive(isSubscriber);
+		MVLocalPlayer localPlayer = MVGameControllerBase.LocalPlayer;
+		bool flag = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
+		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.UserProfileData.IsAdmin || flag));
 		Color color = Styles.GetColor(ColorStyle.Gray);
 		if (isSubscriber)
 		{
@@ -58,8 +70,6 @@ public class PlayerSocialPopup : MonoBehaviour
 			friends2.OnPendingCountChanged = (UnityAction<int>)Delegate.Combine(friends2.OnPendingCountChanged, new UnityAction<int>(PendingCountChanged));
 			FriendList friends3 = MVGameControllerBase.Game.Friends;
 			friends3.OnFriendListUpdated = (FriendList.OnFriendListUpdatedDelegate)Delegate.Combine(friends3.OnFriendListUpdated, new FriendList.OnFriendListUpdatedDelegate(SetupFriendButtons));
-			FriendList friends4 = MVGameControllerBase.Game.Friends;
-			friends4.OnFriendRequestAccepted = (FriendList.OnFriendRequestUpdated)Delegate.Combine(friends4.OnFriendRequestAccepted, new FriendList.OnFriendRequestUpdated(OnFriendRequestAccepted));
 		}
 		else
 		{
@@ -67,7 +77,7 @@ public class PlayerSocialPopup : MonoBehaviour
 		}
 	}
 
-	public void OnFriendRequestAccepted(Friend friend)
+	public void OnAcceptFriendClicked()
 	{
 		string error = string.Empty;
 		if (ValidateFriendRequest(ref error))
@@ -106,6 +116,29 @@ public class PlayerSocialPopup : MonoBehaviour
 		BrowserCommGotoRequests.GotoPlayerProfile(profileId, newTab: true);
 	}
 
+	public void OnOpenAdminController()
+	{
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
+		if (localPlayer.ProfileID > 0 && localPlayer.UserProfileData.IsAdmin)
+		{
+			AdminToolController adminTools = UnityEngine.Object.Instantiate(adminToolsPrefab);
+			adminTools.Initialize(playerName.text);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(adminTools.gameObject, UIPushOption.Blocking, null, UIGroupFlags.GameObjectUI);
+			});
+		}
+		else if (MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner)
+		{
+			OwnerToolController ownerTools = UnityEngine.Object.Instantiate(ownerToolsPrefab);
+			ownerTools.Initialize(playerName.text);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(ownerTools.gameObject, UIPushOption.Blocking, null, UIGroupFlags.GameObjectUI);
+			});
+		}
+	}
+
 	private void FriendRequestReceived()
 	{
 		SetupFriendButtons();
@@ -124,8 +157,6 @@ public class PlayerSocialPopup : MonoBehaviour
 		friends2.OnPendingCountChanged = (UnityAction<int>)Delegate.Remove(friends2.OnPendingCountChanged, new UnityAction<int>(PendingCountChanged));
 		FriendList friends3 = MVGameControllerBase.Game.Friends;
 		friends3.OnFriendListUpdated = (FriendList.OnFriendListUpdatedDelegate)Delegate.Remove(friends3.OnFriendListUpdated, new FriendList.OnFriendListUpdatedDelegate(SetupFriendButtons));
-		FriendList friends4 = MVGameControllerBase.Game.Friends;
-		friends4.OnFriendRequestAccepted = (FriendList.OnFriendRequestUpdated)Delegate.Remove(friends4.OnFriendRequestAccepted, new FriendList.OnFriendRequestUpdated(OnFriendRequestAccepted));
 	}
 
 	private void SetupFriendButtons()
@@ -175,8 +206,7 @@ public class PlayerSocialPopup : MonoBehaviour
 		int num = level + 1;
 		int friendsLimit2 = BadgeManager.GetFriendsLimit(num);
 		string format = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
-		format = string.Format(format, friendsLimit, level, num, friendsLimit2);
-		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Your friendlist is full"));
+		error = string.Format(format, friendsLimit, level, num, friendsLimit2);
 		return false;
 	}
 }

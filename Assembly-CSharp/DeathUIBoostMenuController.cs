@@ -47,6 +47,15 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	[SerializeField]
 	private ContinueButtonLockCursor continueButtonLockCursor;
 
+	[SerializeField]
+	private Image adIcon;
+
+	[SerializeField]
+	private Image playIcon;
+
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private float startTime;
 
 	private readonly float timeUntilGhostMode = 2f;
@@ -72,6 +81,16 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		startTime = Time.time;
 		fader.Activate();
 		fader.ShouldHideWhenDone = false;
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool readyForAd = false;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+		{
+			readyForAd = x.ReadyForAd;
+		});
+		bool flag = !currentSiteData.showTouristPromotion && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest && readyForAd;
+		adIcon.gameObject.SetActive(flag);
+		playIcon.gameObject.SetActive(!flag);
+		readyToPlayTimerFill.gameObject.SetActive(!flag);
 		respawnButton.Initialize(OnRespawn);
 		resetButton.Initialize(OnResetToSpawnPoint);
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;

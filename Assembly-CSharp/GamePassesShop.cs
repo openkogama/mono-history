@@ -112,6 +112,9 @@ public class GamePassesShop : MonoBehaviour
 	[SerializeField]
 	private Image lockedTierIcon;
 
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private GamePassTier gamePassTierDisplayed;
 
 	private float lerpStartTime;
@@ -164,7 +167,10 @@ public class GamePassesShop : MonoBehaviour
 			ShowTierUnlockedPopup(wasPurchased: false, wasTempUnlocked: false);
 			return;
 		}
-		if (MVGameControllerBase.IsTouristSession)
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool flag = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		purchaseButtonObject.SetActive(flag);
+		if (MVGameControllerBase.IsTouristSession && flag)
 		{
 			ShowTouristInformationPopup();
 			return;

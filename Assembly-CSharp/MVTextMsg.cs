@@ -13,6 +13,8 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVTextMsg(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

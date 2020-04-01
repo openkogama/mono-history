@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.Networking;
@@ -9,22 +8,11 @@ public static class Post
 {
 	private class FormPoster
 	{
-		private Action<UnityWebRequest> callback;
-
 		private Dictionary<string, string> Parameters;
 
 		private string RelUrl;
 
 		private string BaseUrl;
-
-		public FormPoster(string base_url, string rel_url, Dictionary<string, string> parameters, Action<UnityWebRequest> callback)
-		{
-			BaseUrl = base_url;
-			Parameters = parameters;
-			RelUrl = rel_url;
-			this.callback = callback;
-			PostForm();
-		}
 
 		public FormPoster(string base_url, string rel_url, Dictionary<string, string> parameters)
 		{
@@ -47,7 +35,7 @@ public static class Post
 			{
 				unityWebRequest.SetRequestHeader(item.Key, item.Value);
 			}
-			AsyncWWWManager.WWWRequest(new CustomPostRequest(unityWebRequest, callback, WWWRequestPriority.ExecuteWhileSyncronizing));
+			unityWebRequest.SendWebRequest();
 		}
 
 		private byte[] CreatePostData()
@@ -84,27 +72,9 @@ public static class Post
 		Counter(key, ukey, (float)count);
 	}
 
-	public static void Value(string key, string ukey, float value)
-	{
-		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("key", key);
-		dictionary.Add("ukey", ukey);
-		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/v", dictionary);
-	}
-
 	public static void Value(string key, string ukey, int value)
 	{
 		Value(key, ukey, (float)value);
-	}
-
-	public static void EzCounter(string ezkey, string stat, float count)
-	{
-		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("ezkey", ezkey);
-		dictionary.Add("stat", stat);
-		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary);
 	}
 
 	public static void EzCounter(string ezkey, string stat, int count)
@@ -126,59 +96,21 @@ public static class Post
 		EzValue(ezkey, stat, (float)value);
 	}
 
-	public static void Counter(string key, string ukey, float count, Action<UnityWebRequest> callback)
-	{
-		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("key", key);
-		dictionary.Add("ukey", ukey);
-		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/c", dictionary, callback);
-	}
-
-	public static void Counter(string key, string ukey, int count, Action<UnityWebRequest> callback)
-	{
-		Counter(key, ukey, (float)count, callback);
-	}
-
-	public static void Value(string key, string ukey, float value, Action<UnityWebRequest> callback)
+	public static void Value(string key, string ukey, float value)
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
 		dictionary.Add("key", key);
 		dictionary.Add("ukey", ukey);
 		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/v", dictionary, callback);
+		new FormPoster("https://api.stathat.com", "/v", dictionary);
 	}
 
-	public static void Value(string key, string ukey, int value, Action<UnityWebRequest> callback)
-	{
-		Value(key, ukey, (float)value, callback);
-	}
-
-	public static void EzCounter(string ezkey, string stat, float count, Action<UnityWebRequest> callback)
+	public static void EzCounter(string ezkey, string stat, float count)
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
 		dictionary.Add("ezkey", ezkey);
 		dictionary.Add("stat", stat);
 		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary, callback);
-	}
-
-	public static void EzCounter(string ezkey, string stat, int count, Action<UnityWebRequest> callback)
-	{
-		EzCounter(ezkey, stat, (float)count, callback);
-	}
-
-	public static void EzValue(string ezkey, string stat, float value, Action<UnityWebRequest> callback)
-	{
-		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("ezkey", ezkey);
-		dictionary.Add("stat", stat);
-		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary, callback);
-	}
-
-	public static void EzValue(string ezkey, string stat, int value, Action<UnityWebRequest> callback)
-	{
-		EzValue(ezkey, stat, (float)value, callback);
+		new FormPoster("https://api.stathat.com", "/ez", dictionary);
 	}
 }

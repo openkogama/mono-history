@@ -6,6 +6,8 @@ public class MVGoal : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public MVGoal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVGoalPrefab, worldObjects)
 	{

@@ -12,6 +12,8 @@ public class MVCheckpoint : MVLogicObject
 
 	private bool playingAnimation;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Checkpoint;
 
 	public override Vector3 WorldPivot => transform.position;

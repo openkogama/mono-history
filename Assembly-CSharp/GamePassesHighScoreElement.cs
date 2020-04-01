@@ -30,6 +30,9 @@ public class GamePassesHighScoreElement : MonoBehaviour, IPointerEnterHandler, I
 	[SerializeField]
 	private PlayerSocialPopup playerSocialPopup;
 
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
 	private int profileId;
 
 	private bool isLocalPlayerElement;
@@ -58,6 +61,11 @@ public class GamePassesHighScoreElement : MonoBehaviour, IPointerEnterHandler, I
 			if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 			{
 				userNameText.color = Styles.GetColor(ColorStyle.FriendGreen);
+			}
+			EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+			if (!currentSiteData.allowsOpenInNewTab && !currentSiteData.allowsRedirectToWebpage)
+			{
+				buttonElement.interactable = false;
 			}
 		}
 		if (isSubscriber)

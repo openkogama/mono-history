@@ -8,48 +8,6 @@ using UnityEngine.Networking;
 
 public class SentrySdk : MonoBehaviour
 {
-	private static class RegionDatas
-	{
-		private struct RegionData(string regionKey, bool isEnabled)
-		{
-			public string regionKey = regionKey;
-
-			public bool isEnabled = isEnabled;
-		}
-
-		private static Dictionary<string, RegionData> regionTagToRegionKeyMap = new Dictionary<string, RegionData>
-		{
-			{
-				"local",
-				new RegionData("https://fa4a258cdafc49bd9ad0ab6bd48a0f17@sentry.io/22239", isEnabled: true)
-			},
-			{
-				"dev",
-				new RegionData("https://662a317f4d044b22863ef9d1da030f16@sentry.io/22236", isEnabled: true)
-			},
-			{
-				"test",
-				new RegionData("https://f95c698753144f1e8b918d9193447479@sentry.io/22238", isEnabled: true)
-			},
-			{
-				"friends",
-				new RegionData("https://f4d3872cb35e41149c3fca2ea7b9bca5@sentry.io/22242", isEnabled: true)
-			},
-			{
-				"br",
-				new RegionData("br", isEnabled: false)
-			},
-			{
-				"www",
-				new RegionData("eu", isEnabled: false)
-			}
-		};
-
-		public static string Key => regionTagToRegionKeyMap[MVGameControllerBase.KoGaMaSettings.RegionTag].regionKey;
-
-		public static bool IsEnabled => regionTagToRegionKeyMap[MVGameControllerBase.KoGaMaSettings.RegionTag].isEnabled;
-	}
-
 	private float _timeLastError;
 
 	private const float MinTime = 0.5f;
@@ -59,8 +17,6 @@ public class SentrySdk : MonoBehaviour
 	private int _lastBreadcrumbPos;
 
 	private int _noBreadcrumbs;
-
-	private string _lastErrorMessage = string.Empty;
 
 	private Dsn _dsn;
 
@@ -72,9 +28,9 @@ public class SentrySdk : MonoBehaviour
 
 	private static SentrySdk _instance;
 
-	public void Initialize()
+	public void Initialize(SentryConfig sentryConfig)
 	{
-		if (!RegionDatas.IsEnabled)
+		if (!sentryConfig.isEnabled)
 		{
 			UnityEngine.Debug.LogWarning("The client Sentry SDK is disabled for region.");
 		}
@@ -82,7 +38,7 @@ public class SentrySdk : MonoBehaviour
 		{
 			try
 			{
-				_dsn = new Dsn(RegionDatas.Key);
+				_dsn = new Dsn(sentryConfig.dns);
 			}
 			catch (Exception ex)
 			{
@@ -274,18 +230,14 @@ public class SentrySdk : MonoBehaviour
 		}
 	}
 
-	public static void OnLogMessageReceived(string condition, string stackTrace, LogType type, Dictionary<string, object> extraSentryData, Dictionary<string, string> tags)
+	public void OnLogMessageReceived(string condition, string stackTrace, LogType type, Dictionary<string, object> extraSentryData, Dictionary<string, string> tags)
 	{
-		if (_instance == null || !_instance._initialized)
-		{
-			return;
-		}
-		_instance._lastErrorMessage = condition;
-		if ((type == LogType.Error || type == LogType.Exception || type == LogType.Assert) && !(Time.time - _instance._timeLastError <= 0.5f))
+		if (!(_instance == null) && _instance._initialized && (type == LogType.Error || type == LogType.Exception || type == LogType.Assert) && !(Time.time - _instance._timeLastError <= 0.5f))
 		{
 			_instance._timeLastError = Time.time;
 			switch (type)
 			{
+			case LogType.Assert:
 			case LogType.Exception:
 				_instance.ScheduleException(condition, stackTrace, extraSentryData, tags);
 				break;
@@ -308,7 +260,6 @@ public class SentrySdk : MonoBehaviour
 	{
 		PrepareEvent(@event);
 		string s = JsonConvert.SerializeObject(@event);
-		UnityEngine.Debug.Log(s);
 		string sentryKey = _dsn.publicKey;
 		string sentrySecret = _dsn.secretKey;
 		string timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ss");

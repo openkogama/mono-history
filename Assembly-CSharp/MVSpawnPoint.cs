@@ -6,6 +6,8 @@ public abstract class MVSpawnPoint : MVLogicObject
 {
 	private bool isInWorld;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public MVSpawnPoint(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{

@@ -19,6 +19,8 @@ public class MVTimeTrigger : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public int DelayTime => (int)((float)Data["time"] * 1000f);

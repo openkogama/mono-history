@@ -12,6 +12,8 @@ public class DeathPromotionController : MonoBehaviour, IDeathPromotionSelector, 
 
 	private IPromotionController adController;
 
+	public bool ReadyForAd => adController.ReadyForAd;
+
 	public void Initialize()
 	{
 		if (MVGameControllerBase.IsTouristSession)

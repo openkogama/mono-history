@@ -40,7 +40,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	}
 
 	[SerializeField]
-	protected SentrySdk sentrySdk;
+	protected RegionConfigManager regionConfigManager;
+
+	[SerializeField]
+	protected DebugLogHandler debugLogHandler;
 
 	[SerializeField]
 	protected KoGaMaSettingsContainer koGaMaSettings;
@@ -65,6 +68,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	[SerializeField]
 	private StreamingAssetManager streamingAssetManager;
+
+	[SerializeField]
+	protected EmbeddedPlayerConfig embeddedPlayerConfig;
 
 	public const bool LevelingTestMode = false;
 
@@ -117,19 +123,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	private SkyboxManager skyboxManager;
 
-	private bool reportedError;
-
-	private bool reportedOngoingError;
-
 	public static SpawnRoleDataMediator SpawnRoleDataMediatorLocal => Game.LocalPlayer.SpawnRoleDataMediator;
 
 	public static MVLocalPlayer LocalPlayer => Game.LocalPlayer;
 
 	public static GameEventManager GameEventManager => Game.GameEventManager;
-
-	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
-
-	public static StreamingAssetManager StreamingAssetManager => instance.streamingAssetManager;
 
 	public static bool IsInitialized { get; protected set; }
 
@@ -154,6 +152,14 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static FlagDebriefingControl FlagDebriefingControl => instance.flagDebriefingControl;
 
 	public static GoldRewardManager GoldRewardManager => instance.goldRewardManager;
+
+	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
+
+	public static StreamingAssetManager StreamingAssetManager => instance.streamingAssetManager;
+
+	protected EmbeddedPlayerConfig EmbeddedPlayerConfig => instance.embeddedPlayerConfig;
+
+	protected RegionConfig RegionConfig => regionConfigManager.RegionConfig;
 
 	public static GameSessionData GameSessionData { get; private set; }
 
@@ -281,14 +287,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		stringBuilder.AppendFormat("Latest commit message: {0}\n", koGaMaSettings.LatestCommitMessage);
 		stringBuilder.AppendFormat("Build time: {0}\n", koGaMaSettings.BuildTime);
 		Debug.Log(stringBuilder);
-		DebugLogHandler.Init();
-		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
-		{
-			Debug.unityLogger.filterLogType = LogType.Warning;
-		}
 		PlayerPrefsManager.EarlyInitialize();
-		StatHatWrapper.Initialize(PlayerPrefsManager.IsFirstTimeSession);
-		Debug.Log("Is first time session " + PlayerPrefsManager.IsFirstTimeSession);
+		StatHatWrapper.Initialize(PlayerPrefsManager.IsFirstTimeSession, RegionConfig.StathatConfig);
+		debugLogHandler.Initialize(RegionConfig.DebuggerLoggerConfig, RegionConfig.sentryConfig);
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
@@ -324,7 +325,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			FirstTimeEventManager.Destroy();
 			ThemeRepository.Destroy();
 			AudioEventHandler.Destroy();
-			DebugLogHandler.Reset();
+			debugLogHandler.Destroy();
 			AwayMonitor.Destroy();
 			TM.Destroy();
 			AsyncWWWManager.Reset();
@@ -352,7 +353,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		UpdateController.Update();
 		HandleDebugShortCuts();
-		HandleStatHatErrorCount();
 	}
 
 	protected void FixedUpdate()
@@ -522,14 +522,13 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		DisconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
-		game = new MVNetworkGame();
+		embeddedPlayerConfig.Initialize();
+		game = new MVNetworkGame(RegionConfig.PhotonLoggingConfig, EmbeddedPlayerConfig.GetCurrentSiteData());
 		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
-		Debug.Log(DateTime.UtcNow.Millisecond);
 		if (!Game.Join())
 		{
 			Debug.LogError("Failed to connect");
 		}
-		Debug.Log(DateTime.UtcNow.Millisecond);
 	}
 
 	protected virtual void InitWebGL(bool developmentMode)
@@ -596,20 +595,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		IsInitialized = true;
 		materialLoader.Initialize();
-	}
-
-	private static void HandleStatHatErrorCount()
-	{
-		if (!instance.reportedError && DebugLogHandler.ErrorDetected)
-		{
-			StatHatWrapper.Count("errorcount", 1);
-			instance.reportedError = true;
-		}
-		if (!instance.reportedOngoingError && DebugLogHandler.OngoingErrorDetected)
-		{
-			StatHatWrapper.Count("errorcountongoing", 1);
-			instance.reportedOngoingError = true;
-		}
 	}
 
 	private void HandleDebugShortCuts()

@@ -15,6 +15,8 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 
 	private bool inputVisible;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.PointLight;
 
 	public override bool HasInputConnector => true;

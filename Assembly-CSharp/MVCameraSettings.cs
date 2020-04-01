@@ -13,6 +13,8 @@ public class MVCameraSettings : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public MVCameraSettings(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCameraSettingsPrefab, worldObjects)
 	{

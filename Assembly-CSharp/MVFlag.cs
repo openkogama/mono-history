@@ -18,6 +18,8 @@ public class MVFlag : MVGamePointRewardLogicObject
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Flag;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

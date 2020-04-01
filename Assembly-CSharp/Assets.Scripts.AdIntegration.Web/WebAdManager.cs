@@ -17,9 +17,9 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		public bool status;
 	}
 
-	private bool webReturnedAvailabilityInterstitial;
+	private bool webReturnedAvailabilityInterstitial = true;
 
-	private bool webReturnedAvailabilityRewardedAd;
+	private bool webReturnedAvailabilityRewardedAd = true;
 
 	private static readonly float refreshTimer = 60f;
 
@@ -33,7 +33,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	private bool embeddedSiteSDKAvailable;
 
-	private EmbeddedSite embeddedSite;
+	private EmbeddedSiteConfigData siteData;
 
 	private bool probablyWatchingAd;
 
@@ -45,6 +45,16 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	private bool showingAd;
 
+	private float timeOfRewardedAdStart;
+
+	private bool timeoutAdAfterDelayAsUnlocked;
+
+	private int timeoutSuccessDelay = 30;
+
+	private float interstitialTimeoutAfterRewardedAd;
+
+	private float lastSeenRewardedAd;
+
 	public string RewardedAdNotAvailableText => TM._("Please ensure AdBlock is disabled, and be sure to watch the ad from start to finish.");
 
 	public TimeSpan TimeSinceLastAd => new TimeSpan(Math.Min(TimeSinceLastInterstitial.Ticks, TimeSinceLastRewarded.Ticks));
@@ -55,20 +65,27 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	public bool ReadyForRewardedAdRequest => webReturnedAvailabilityRewardedAd && !adUIManager.AdShowing();
 
-	public bool ReadyForInterstitialAdRequest => webReturnedAvailabilityInterstitial && !adUIManager.AdShowing();
+	public bool ReadyForInterstitialAdRequest => webReturnedAvailabilityInterstitial && !adUIManager.AdShowing() && Time.time - lastSeenRewardedAd >= interstitialTimeoutAfterRewardedAd;
 
 	public WebAdManager()
 	{
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
 
+	public void InitializeAdConfigSettings(AdConfigSettings config)
+	{
+		siteData = config.EmbeddedSiteConfigData;
+		timeoutAdAfterDelayAsUnlocked = config.AdTimeoutAsSuccess;
+		timeoutSuccessDelay = config.AdTimeoutAsSuccessDelay;
+		interstitialTimeoutAfterRewardedAd = config.InterstitialTimeoutAfterRewardedAd;
+	}
+
 	public void InitializeCallbackManager(IAdUIManager adUIManager)
 	{
 		this.adUIManager = adUIManager;
-		if (MVGameControllerBase.GameSessionData.embedded && MVClientSettings.WebAdSDKsEnabled)
+		if (MVGameControllerBase.GameSessionData.embedded && MVClientSettings.WebAdSDKsEnabled && siteData.integratedSdk)
 		{
-			embeddedSite = EmbeddedSiteDetector.GetEmbeddedSite();
-			sdkManager = new AdSDKManager(embeddedSite);
+			sdkManager = new AdSDKManager(siteData.siteEnum);
 			embeddedSiteSDKAvailable = true;
 		}
 	}
@@ -76,16 +93,15 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 	public void CreateAdManagerHack()
 	{
 		Debug.Log("Creating an ad manager that shouldn't be there, through a chat command ignoring embedded and webadsdksenabled check.");
-		embeddedSite = EmbeddedSiteDetector.GetEmbeddedSite();
-		sdkManager = new AdSDKManager(embeddedSite);
+		sdkManager = new AdSDKManager(siteData.siteEnum);
 		embeddedSiteSDKAvailable = true;
 	}
 
-	public void ForceCreateEmbeddedSiteSDK(EmbeddedSite site)
+	public void ForceCreateEmbeddedSiteSDK(EmbeddedSiteConfigData site)
 	{
 		Debug.Log("Creating " + site.ToString() + " admanager forcefully through chat command. ");
-		sdkManager = new AdSDKManager(site);
-		embeddedSite = site;
+		sdkManager = new AdSDKManager(site.siteEnum);
+		siteData = site;
 		embeddedSiteSDKAvailable = true;
 	}
 
@@ -99,6 +115,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		}
 		currentAdType = context;
 		StartedWatchingAd();
+		timeOfRewardedAdStart = Time.time;
 		SendRewardRequestStats(context);
 		adUIManager.ShowRewardedVideo(rewardedAdCallback);
 		if (embeddedSiteSDKAvailable && sdkManager.ReadyForRewardedAdRequest)
@@ -108,7 +125,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 			return;
 		}
 		Debug.Log("Embedded sdk not available.");
-		if (embeddedSite != EmbeddedSite.GameDistribution)
+		if (siteData.allowsFallbackAds)
 		{
 			RequestNonEmbeddedRewardedAd();
 		}
@@ -152,7 +169,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 			return;
 		}
 		Debug.Log("Embedded sdk not available.");
-		if (embeddedSite != EmbeddedSite.GameDistribution)
+		if (siteData.allowsFallbackAds)
 		{
 			RequestNonEmbeddedInterstitialAd();
 		}
@@ -172,14 +189,14 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 	private void InterstitialAdShownSDKCallback(InterstitialAdResult result)
 	{
 		Debug.Log("InterstitialAdShownSDKCallback: " + result);
-		if (result != InterstitialAdResult.Done && embeddedSite != EmbeddedSite.GameDistribution)
+		if (result != InterstitialAdResult.Done && siteData.allowsFallbackAds)
 		{
 			RequestNonEmbeddedInterstitialAd();
 			return;
 		}
 		Debug.Log("Interstitial ad shown.");
 		SendStat("Ad.InterstitialShown");
-		SendStat("Ad.InterstitialShown." + embeddedSite);
+		SendStat("Ad.InterstitialShown." + siteData.siteEnum);
 		SetFinishedWatchingAd("Interstitial");
 		adUIManager.PopInterstitial(InterstitialAdResult.Done);
 	}
@@ -187,15 +204,23 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 	private void RewardedAdShownSDKCallback(RewardedAdResult result)
 	{
 		Debug.Log("RewardedAdShownSDKCallback: " + result);
-		if (result != RewardedAdResult.RewardNotUnlocked && result != RewardedAdResult.RewardUnlocked && embeddedSite != EmbeddedSite.GameDistribution)
+		if (timeoutAdAfterDelayAsUnlocked && Time.time - timeOfRewardedAdStart >= (float)timeoutSuccessDelay)
+		{
+			result = RewardedAdResult.RewardUnlocked;
+		}
+		if (result != RewardedAdResult.RewardNotUnlocked && result != RewardedAdResult.RewardUnlocked && siteData.allowsFallbackAds)
 		{
 			RequestNonEmbeddedRewardedAd();
 			return;
 		}
 		Debug.Log("Rewarded ad shown.");
 		SendStat("Ad.RewardedShown");
-		SendStat("Ad.RewardedShown." + embeddedSite);
+		SendStat("Ad.RewardedShown." + siteData.siteEnum);
 		SetFinishedWatchingAd("Rewarded");
+		if (result == RewardedAdResult.RewardUnlocked)
+		{
+			lastSeenRewardedAd = Time.time;
+		}
 		adUIManager.PopRewardedVideo(result);
 	}
 
@@ -214,6 +239,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 	private void SetFinishedWatchingAd(string adType)
 	{
 		showingAd = false;
+		SendStat("Ad." + adType + "Finished");
 		SendStat("Ad." + adType + "Finished." + currentAdType);
 		if (probablyWatchingAd)
 		{
@@ -257,7 +283,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	private void OnRewardedAdShownCallback(bool ok, string json)
 	{
-		RewardedAdResult adResult = RewardedAdResult.RewardNotUnlocked;
+		RewardedAdResult rewardedAdResult = RewardedAdResult.RewardNotUnlocked;
 		if (ok)
 		{
 			try
@@ -266,7 +292,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 				{
 					SendStat("Ad.RewardedShown");
 					SendStat("Ad.RewardedShown.Kogama");
-					adResult = RewardedAdResult.RewardUnlocked;
+					rewardedAdResult = RewardedAdResult.RewardUnlocked;
 				}
 			}
 			catch
@@ -274,8 +300,16 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 				Debug.Log("Ad not finished. No reward given");
 			}
 		}
+		if (timeoutAdAfterDelayAsUnlocked && Time.time - timeOfRewardedAdStart >= (float)timeoutSuccessDelay)
+		{
+			rewardedAdResult = RewardedAdResult.RewardUnlocked;
+		}
 		SetFinishedWatchingAd("Rewarded");
-		adUIManager.PopRewardedVideo(adResult);
+		if (rewardedAdResult == RewardedAdResult.RewardUnlocked)
+		{
+			lastSeenRewardedAd = Time.time;
+		}
+		adUIManager.PopRewardedVideo(rewardedAdResult);
 	}
 
 	private void WebCallbackAdAvailable(bool ok, string jsonData)

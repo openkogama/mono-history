@@ -10,6 +10,9 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 	private TouristPromotion touristPromotionPrefab;
 
 	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
+	[SerializeField]
 	private float timeBeforeAdShown = 180f;
 
 	private float timer;
@@ -19,6 +22,8 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 	private bool eligableForPromotion;
 
 	private bool withAd;
+
+	public bool ReadyForAd => MVClientSettings.InterstitialsAdsEnabled && timer >= timeBeforeAdShown;
 
 	public bool IsPromotionAvailable => !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && TouristPromotionAllowed() && eligableForPromotion;
 
@@ -48,13 +53,33 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 	{
 		eligableForPromotion = false;
 		onPromotionWasPopped = onPop;
-		withAd = timer >= timeBeforeAdShown;
-		TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
-		promotion.Initialize(withAd);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		withAd = MVClientSettings.InterstitialsAdsEnabled && timer >= timeBeforeAdShown && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest;
+		if (embeddedPlayerConfig.GetCurrentSiteData().showTouristPromotion)
 		{
-			x.Push(promotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
-		});
+			TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
+			promotion.Initialize(withAd);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(promotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
+			});
+		}
+		else if (withAd)
+		{
+			MVGameControllerBase.AdManager.RequestInterstitial(ShowAdWithoutPromotion, AdContext.TouristInterstitialWithoutPromotion);
+		}
+		else
+		{
+			OnPromotionPopped();
+		}
+	}
+
+	public void ShowAdWithoutPromotion(InterstitialAdResult obj)
+	{
+		timer = 0f;
+		if (onPromotionWasPopped != null)
+		{
+			onPromotionWasPopped(arg0: false, withAd);
+		}
 	}
 
 	private bool TouristPromotionAllowed()

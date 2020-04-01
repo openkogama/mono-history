@@ -147,16 +147,17 @@ public class DeathUIController : MonoBehaviour
 				x.Push(revivePopup.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
 			});
 			revivePopup.Initialize(ReboostNotClicked);
+			return;
 		}
-		else
+		ReviveUIHandler revivePopup2 = UnityEngine.Object.Instantiate(reviveHandler);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			ReviveUIHandler revivePopup2 = UnityEngine.Object.Instantiate(reviveHandler);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			x.Push(revivePopup2.gameObject, UIPushOption.HideAll, () =>
 			{
-				x.Push(revivePopup2.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
-			});
-			revivePopup2.Initialize(ReviveNotClicked);
-		}
+				StatHatWrapper.Count("Revive.Closed", 1);
+			}, UIGroupFlags.GameObjectUI);
+		});
+		revivePopup2.Initialize(ReviveNotClicked);
 	}
 
 	private void ReboostNotClicked()

@@ -9,6 +9,8 @@ public class MVGlobalSoundEmitter : MVLogicObject
 
 	private const string defaultUrl = "AmbientAudio/Music/slowstones.unity3d";
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.GlobalSoundEmitter;
 
 	public MVGlobalSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

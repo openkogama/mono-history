@@ -20,6 +20,7 @@ public class ReviveUIHandler : ReviveUIHandlerBase
 	public override void Initialize(UnityAction onContinueClicked)
 	{
 		base.Initialize(onContinueClicked);
+		StatHatWrapper.Count("Revive.PopupShown", 1);
 		ReviveState value = MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value;
 		currentSafePointSelected = value.GetSafeGroundedPositions().Count - 1;
 		value.SetSafeGroundedDataIndex(currentSafePointSelected);
@@ -84,6 +85,7 @@ public class ReviveUIHandler : ReviveUIHandlerBase
 	protected override void OnRewardedAdWatched(RewardedAdResult result)
 	{
 		Debug.Log("RESULT OF REVIVE: " + result);
+		StatHatWrapper.Count("Revive.WatchedReviveAd", 1);
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(RoundEnded));
 		if (roundEndedWhileWatchingAd)

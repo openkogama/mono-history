@@ -38,6 +38,10 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string urlTest = "/url";
 
+	private const string testError = "/ter";
+
+	private const string testException = "/tex";
+
 	private const string testDateTime = "/dt";
 
 	private const string enableHD = "/hd";
@@ -321,6 +325,13 @@ public class SendMessageControl : MonoBehaviour
 			Debug.Log("resultDebug " + (lastDailyWelcomeRewardClaim.DayOfYear == utcNow.DayOfYear && lastDailyWelcomeRewardClaim.Year == utcNow.Year));
 			break;
 		}
+		case "/ter":
+			Debug.Log("Testing context. chat msg test error.");
+			Debug.LogError("chat msg test error");
+			break;
+		case "/tex":
+			Debug.Log("Testing context. chat msg test ex.");
+			throw new Exception("chat msg test ex");
 		case "/build":
 			ShowBuildInformation();
 			break;
@@ -334,7 +345,10 @@ public class SendMessageControl : MonoBehaviour
 			ChatCommandManager.ChatCommandActivated(ChatCommand.StartWave);
 			break;
 		case "/ad":
-			MVGameControllerBase.AdManager.RequestInterstitial(OnAdShownCallback, AdContext.None);
+			if (MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest)
+			{
+				MVGameControllerBase.AdManager.RequestInterstitial(OnAdShownCallback, AdContext.None);
+			}
 			break;
 		case "/url":
 			Debug.LogError("Testing: Redirect allowed: " + MVGameControllerBase.GameSessionData.GetIsRedirectAllowed());
@@ -345,18 +359,29 @@ public class SendMessageControl : MonoBehaviour
 		case "/rad":
 			MVGameControllerBase.AdManager.RequestRewardedAd(OnAdShownCallback, AdContext.None);
 			break;
-		case "/site":
-			Debug.Log("EmbeddedSiteDetector.GetEmbeddedSite(): " + EmbeddedSiteDetector.GetEmbeddedSite());
-			break;
 		case "/adtest":
 			(MVGameControllerBase.AdManager as WebAdManager).CreateAdManagerHack();
 			break;
 		case "/gdforce":
-			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(EmbeddedSite.GameDistribution);
+		{
+			EmbeddedSiteConfigData site2 = new EmbeddedSiteConfigData
+			{
+				integratedSdk = true,
+				siteEnum = EmbeddedSite.GameDistribution
+			};
+			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(site2);
 			break;
+		}
 		case "/pokiforce":
-			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(EmbeddedSite.Poki);
+		{
+			EmbeddedSiteConfigData site = new EmbeddedSiteConfigData
+			{
+				integratedSdk = true,
+				siteEnum = EmbeddedSite.Poki
+			};
+			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(site);
 			break;
+		}
 		case "/export":
 			ObjExportHandler.InitializePicking();
 			break;

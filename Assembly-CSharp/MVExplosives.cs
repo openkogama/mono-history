@@ -21,6 +21,8 @@ public class MVExplosives : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

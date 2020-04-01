@@ -24,6 +24,8 @@ public class TimeAttackFlag : MVGamePointRewardLogicObject
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.TimeAttackFlag;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public TimeAttackFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

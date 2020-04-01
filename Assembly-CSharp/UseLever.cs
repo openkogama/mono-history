@@ -28,6 +28,8 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public override Vector3 OutputConnectorOffset => new Vector3(1.2f, 0f, 0f);

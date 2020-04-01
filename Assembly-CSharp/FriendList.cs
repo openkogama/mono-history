@@ -120,7 +120,7 @@ public class FriendList
 			}
 			else
 			{
-				Debug.LogError("Tried updating friend that doesnt exist");
+				Debug.LogWarning("Tried updating friend that doesnt exist. Player probably left.");
 			}
 		}
 		else

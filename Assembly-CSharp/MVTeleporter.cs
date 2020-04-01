@@ -29,6 +29,8 @@ public class MVTeleporter : MVLogicObject
 
 	public override bool HasObjectConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public MVTeleporter Target
 	{
 		set

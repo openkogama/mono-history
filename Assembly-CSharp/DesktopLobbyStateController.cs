@@ -36,6 +36,9 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	private BoostMenuController boosterMenu;
 
 	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
+	[SerializeField]
 	private Image lobbyStateBlockingOverlay;
 
 	private GamePassesUI gamePassesUI;
@@ -48,7 +51,9 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
-		avatarAccessoriesButton.SetActive(value: true);
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		bool flag = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		avatarAccessoriesButton.SetActive(!MVGameControllerBase.IsTouristSession || (MVGameControllerBase.IsTouristSession && flag));
 		SetCamMaskMode();
 		if (GamePassesManager.GamePassesActive)
 		{

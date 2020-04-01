@@ -27,6 +27,8 @@ public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 OutputConnectorOffset => new Vector3(1.6f, 0f, 0f);
 
 	private int Duration => (int)((float)Data["duration"] * 1000f);

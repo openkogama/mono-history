@@ -105,6 +105,8 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 
 	private List<int> instigatorsInTrigger = new List<int>();
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public AvatarItemType Type => pickupItemType;
 
 	public int VariantID => pickupVariantId;

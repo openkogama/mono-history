@@ -15,6 +15,8 @@ public class MVWaterPlane : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVWaterPlane(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

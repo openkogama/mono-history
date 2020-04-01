@@ -618,6 +618,16 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	private IAdUIManager adUIManager;
 
+	private bool timeoutAdAfterDelayAsUnlocked;
+
+	private int timeoutSuccessDelay = 30;
+
+	private float timeOfRewardedAdStart;
+
+	private float interstitialTimeoutAfterRewardedAd;
+
+	private float lastSeenRewardedAd;
+
 	public string RewardedAdNotAvailableText => TM._("Please watch the ad from start to finish, or try again later.");
 
 	public TimeSpan TimeSinceLastAd => internalAdManagerState.TimeSinceLastAd;
@@ -628,11 +638,18 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	public bool ReadyForRewardedAdRequest => internalAdManagerState.ReadyForRewardedAdRequest;
 
-	public bool ReadyForInterstitialAdRequest => internalAdManagerState.ReadyForRewardedAdRequest;
+	public bool ReadyForInterstitialAdRequest => internalAdManagerState.ReadyForRewardedAdRequest && Time.time - lastSeenRewardedAd >= interstitialTimeoutAfterRewardedAd;
 
 	public MobileAdManager(bool testing)
 	{
 		MobileAdManager.testing = testing;
+	}
+
+	public void InitializeAdConfigSettings(AdConfigSettings config)
+	{
+		timeoutAdAfterDelayAsUnlocked = config.AdTimeoutAsSuccess;
+		timeoutSuccessDelay = config.AdTimeoutAsSuccessDelay;
+		interstitialTimeoutAfterRewardedAd = config.InterstitialTimeoutAfterRewardedAd;
 	}
 
 	public void Initialize()
@@ -696,6 +713,7 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 			rewardedAdCallback(RewardedAdResult.ErrorClient);
 			return;
 		}
+		timeOfRewardedAdStart = Time.time;
 		SendRewardRequestStats(context);
 		adUIManager.ShowRewardedVideo(RewardedAdCallback);
 		rewardedAdResultHandler = new RewardedAdResultHandler(rewardedAdCallback, adUIManager, context);
@@ -743,6 +761,14 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	private void RewardedAdCallback(RewardedAdResult obj)
 	{
+		if (timeoutAdAfterDelayAsUnlocked && Time.time - timeOfRewardedAdStart >= (float)timeoutSuccessDelay)
+		{
+			obj = RewardedAdResult.RewardUnlocked;
+		}
+		if (obj == RewardedAdResult.RewardUnlocked)
+		{
+			lastSeenRewardedAd = Time.time;
+		}
 		rewardedAdResultHandler.SetResult(obj);
 	}
 

@@ -52,7 +52,6 @@ public static class KogamaSettingTools
 		if (source is KogamaSettingValueWrapperBase)
 		{
 			((KogamaSettingValueWrapperBase)target).KogamaSetting.Value = ((KogamaSettingValueWrapperBase)source).KogamaSetting.Value;
-			Console.WriteLine("Hmmmmmm");
 			return;
 		}
 		if (source is KogamaSettingsCollectionBase)

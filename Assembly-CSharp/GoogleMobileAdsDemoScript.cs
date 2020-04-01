@@ -88,7 +88,7 @@ public class GoogleMobileAdsDemoScript : MonoBehaviour
 		Rect position9 = new Rect(x2, 0.4f * (float)Screen.height, width, height);
 		if (GUI.Button(position9, "Show\nTest suite"))
 		{
-			MediationTestSuite.Show(MobileAdManagerCredentials.GetAdMobCredentials().AppId);
+			MediationTestSuite.Show();
 		}
 		Rect position10 = new Rect(x2, 0.8f * (float)Screen.height, width, 0.5f * (float)Screen.height);
 		GUIStyle gUIStyle2 = new GUIStyle();

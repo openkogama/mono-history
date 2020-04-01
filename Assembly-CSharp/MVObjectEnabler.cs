@@ -18,6 +18,8 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 
 	public override bool HasObjectConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public bool ShowingOutline => showingOutline;

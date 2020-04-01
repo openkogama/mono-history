@@ -17,6 +17,7 @@ public class AvatarLocal : Avatar
 		base.Initialize(mvAvatar, isLocal);
 		avatarCameraController = Object.Instantiate(avatarCamerasDesktop);
 		avatarCameraController.Initialize((MVAvatarLocal)mvAvatar);
+		PrewarmXPParticles();
 	}
 
 	private void OnDestroy()
@@ -29,15 +30,25 @@ public class AvatarLocal : Avatar
 		}
 	}
 
-	public void OnXpProgressing(int xp)
+	private void PrewarmXPParticles()
 	{
-		Debug.Log("OnXpProgressing");
+		CreateXPParticlesWithLayer(0, LayerUtil.GetLayerNumber(LayerFlags.Hidden));
+	}
+
+	private void CreateXPParticlesWithLayer(int xp, int layer)
+	{
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = transform;
 		avatarPooledXPParticles.transform.localPosition = Vector3.up;
 		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
-		avatarPooledXPParticles.gameObject.layer = mvAvatar.Body.GameObject.layer;
+		avatarPooledXPParticles.gameObject.layer = layer;
 		avatarPooledXPParticles.Initialize(xp);
+	}
+
+	public void OnXpProgressing(int xp)
+	{
+		Debug.Log("OnXpProgressing");
+		CreateXPParticlesWithLayer(xp, mvAvatar.Body.GameObject.layer);
 	}
 }

@@ -29,6 +29,8 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 
 	protected override int GamePointRewardAmount => 1;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

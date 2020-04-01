@@ -9,10 +9,17 @@ public class GameSetupOptions : MonoBehaviour
 
 	private static bool isReviveEnabled = true;
 
+	private static bool reviveUpdated;
+
 	public static bool IsReviveEnabled
 	{
 		get
 		{
+			if (reviveUpdated)
+			{
+				return isReviveEnabled;
+			}
+			reviveUpdated = true;
 			MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 			List<KogamaSettingValueWrapperBase> getOptions = singletonWorldObject.GameOptionSettingsManager.GetOptions;
 			foreach (KogamaSettingValueWrapperBase item in getOptions)
@@ -47,6 +54,7 @@ public class GameSetupOptions : MonoBehaviour
 	public void ToggleRevive()
 	{
 		isReviveEnabled = !isReviveEnabled;
+		reviveUpdated = false;
 		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		List<KogamaSettingValueWrapperBase> getOptions = singletonWorldObject.GameOptionSettingsManager.GetOptions;
 		foreach (KogamaSettingValueWrapperBase item in getOptions)

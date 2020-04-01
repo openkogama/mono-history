@@ -31,6 +31,8 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public override Vector3 InputConnectorOffset => new Vector3(-1f, 0f, 0f);
 
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }

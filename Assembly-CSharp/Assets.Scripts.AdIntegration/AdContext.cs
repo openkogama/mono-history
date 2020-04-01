@@ -14,5 +14,6 @@ public enum AdContext
 	RegisteredEmbeddedPromotion,
 	RegisteredElitePromotion,
 	GoldReward,
-	Revive
+	Revive,
+	TouristInterstitialWithoutPromotion
 }

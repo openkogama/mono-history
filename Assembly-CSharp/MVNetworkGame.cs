@@ -1293,6 +1293,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void RequestAcceptFriendShip(int friendID)
 		{
+			StatHatWrapper.Count("Friend.RequestAccepted", 1);
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(52, friendID);
 			peer.SendOperation(16, dictionary, SendOptions.SendReliable);
@@ -1791,6 +1792,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public bool RequestFriendShipByID(int id, ref string errorText)
 		{
+			StatHatWrapper.Count("Friend.RequestSent", 1);
 			if (id != networkGame.LocalPlayer.ProfileID)
 			{
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
@@ -2513,7 +2515,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				registeredFatalStatusCodeInStatHat = true;
 				StatHatWrapper.Count("StatusCode." + returnCode, 1);
-				DebugLogHandler.ForceExtraErrorReport();
 				Debug.LogError("Client disconnected " + returnCode);
 			}
 		}
@@ -2525,7 +2526,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			switch (returnCode)
 			{
 			case StatusCode.Connect:
-				DebugLogHandler.DidConnectToGameServer = true;
 				MVGameControllerBase.OperationRequests.JoinGame();
 				break;
 			case StatusCode.Disconnect:
@@ -2541,7 +2541,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			case StatusCode.SendError:
 			case StatusCode.ExceptionOnReceive:
 			case StatusCode.TimeoutDisconnect:
-			case StatusCode.DisconnectByServer:
+			case StatusCode.DisconnectByServerTimeout:
 			case StatusCode.DisconnectByServerUserLimit:
 			case StatusCode.DisconnectByServerLogic:
 			case StatusCode.DisconnectByServerReasonUnknown:
@@ -2639,6 +2639,10 @@ public class MVNetworkGame : IPhotonPeerListener
 	public Action OnAccessoryUnequipped;
 
 	private readonly MVPlayerContainer playerContainer = new MVPlayerContainer();
+
+	private PhotonLoggingConfig photonLoggingConfig;
+
+	private EmbeddedSiteConfigData embeddedSiteConfigData;
 
 	private LogicObjectManagerClientWrapper logicObjectManagerClientWrapper;
 
@@ -2790,13 +2794,15 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public event EventHandler<ScreenshotUploadedEventArgs> ScreenshotUploaded;
 
-	public MVNetworkGame()
+	public MVNetworkGame(PhotonLoggingConfig photonLoggingConfig, EmbeddedSiteConfigData embeddedSiteConfigData)
 	{
+		this.photonLoggingConfig = photonLoggingConfig;
+		this.embeddedSiteConfigData = embeddedSiteConfigData;
 		MVGameControllerBase.JoinState = MVJoinState.Joining;
 		Peer = new PhotonPeer(this, MVGameControllerBase.GameSessionData.ConnectionProtocol);
 		Peer.DisconnectTimeout = 20000;
 		Peer.SentCountAllowance = 8;
-		Peer.DebugOut = DebugLevel.WARNING;
+		Peer.DebugOut = photonLoggingConfig.untilConnectedDebugLevel;
 		CreatePrivateClasses();
 		NetworkGameStateListener = new MVNetworkGameStateListener();
 		NetworkGameStateListener.OnGameStateChanged += networkGameStateListener_OnGameStateChanged;
@@ -3062,7 +3068,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnJoinResponse(Dictionary<byte, object> returnValues)
 	{
-		DebugLogHandler.SetupSentryClient((string)returnValues[201]);
 		AntiCheatData antiCheatData = JsonConvert.DeserializeObject<AntiCheatData>((string)returnValues[211]);
 		HackingToolDetector.Initialize(antiCheatData.applicationDescFactoryBase.ApplicationDescs.ToArray());
 		Dictionary<object, object> prices = (Dictionary<object, object>)returnValues[182];
@@ -3114,6 +3119,8 @@ public class MVNetworkGame : IPhotonPeerListener
 		KogamaMainpageURL = (string)returnValues[226];
 		CreySettings = new CreySettings((int)returnValues[228], (string)returnValues[229], (bool)returnValues[230]);
 		EliteSettings = new ElitePromotionSettings((bool)returnValues[231], (int)returnValues[232]);
+		AdConfigSettings config = new AdConfigSettings(embeddedSiteConfigData, (bool)returnValues[237], (int)returnValues[235], (int)returnValues[238]);
+		MVGameControllerBase.AdManager.InitializeAdConfigSettings(config);
 		isPublished = (bool)returnValues[82];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();
@@ -3753,6 +3760,11 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnStatusChanged(StatusCode statusCode)
 	{
 		statusChangedHandling.OnStatusChanged(statusCode);
+		if (statusCode == StatusCode.Connect)
+		{
+			DebugLogHandler.DidConnectToGameServer = true;
+			Peer.DebugOut = photonLoggingConfig.defaultDebugLevel;
+		}
 	}
 
 	public void OnEvent(EventData eventData)

@@ -27,6 +27,8 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 
 	private UnityAction<bool, bool> onPromotionWasPopped;
 
+	public bool ReadyForAd => true;
+
 	public bool IsPromotionAvailable => timer >= timeBeforeShownPromotion;
 
 	public void Initialize()
@@ -79,7 +81,7 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 	private void PushPromotionSlide(RegisteredPromotionPopup popupPrefab, bool isEmbeddedPromotion)
 	{
 		RegisteredPromotionPopup registeredPromotion = Object.Instantiate(popupPrefab);
-		registeredPromotion.Initialize(isEmbeddedPromotion);
+		registeredPromotion.Initialize(isEmbeddedPromotion, MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(registeredPromotion.gameObject, UIPushOption.InvisibleBlocker, OnPromotionPop, UIGroupFlags.Popup);

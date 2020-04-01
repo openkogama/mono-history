@@ -20,6 +20,8 @@ public class MVRandomBox : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => true;
 
+	protected override bool HasVisualsInPlaymode => false;
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	private int CurrentValue

@@ -39,6 +39,8 @@ public class MVCollectible : MVGamePointRewardLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	protected override bool HasVisualsInPlaymode => true;
+
 	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCollectiblePrefab, worldObjects)
 	{

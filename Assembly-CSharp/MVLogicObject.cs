@@ -11,6 +11,8 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 
 	private GameObject lodGameObject;
 
+	protected abstract bool HasVisualsInPlaymode { get; }
+
 	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
@@ -38,6 +40,10 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 
 	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject, float cullingRadius = 2f)
 	{
+		if (!HasVisualsInPlaymode && MVGameControllerBase.EditModeUI == null)
+		{
+			return null;
+		}
 		this.lodGameObject = lodGameObject;
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		cullingSubscriberBase = new CullingSubscriberBase(cullingRadius, WorldPosition, OnStateChanged);
