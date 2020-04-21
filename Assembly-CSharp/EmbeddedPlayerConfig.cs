@@ -60,16 +60,13 @@ public class EmbeddedPlayerConfig : ScriptableObject
 		if (Uri.TryCreate(url, UriKind.Absolute, out var result))
 		{
 			url = result.Host;
-			Debug.Log("Made uri from URL: " + url);
-			Debug.Log("uri: " + result.ToString());
 		}
-		string text = UnityWebRequest.UnEscapeURL(url);
-		Debug.Log("unescape url: " + text);
+		string host = UnityWebRequest.UnEscapeURL(url);
 		try
 		{
 			for (int i = 0; i < siteData.Count; i++)
 			{
-				if (IsValidHost(text, siteData[i].sites.ToArray()))
+				if (IsValidHost(host, siteData[i].sites.ToArray()))
 				{
 					currentSite = siteData[i];
 					break;
@@ -93,14 +90,12 @@ public class EmbeddedPlayerConfig : ScriptableObject
 		Uri uri = new UriBuilder("https", host).Uri;
 		foreach (string text in hosts)
 		{
-			Debug.Log("comparing " + text.ToString() + " to " + uri.Host.ToString());
 			if (uri.Host.Contains(text))
 			{
 				Debug.Log("Host match found: " + text + " matching " + uri.Host);
 				return true;
 			}
 		}
-		Debug.Log("no host match found for host: " + host);
 		return false;
 	}
 

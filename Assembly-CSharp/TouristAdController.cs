@@ -54,7 +54,7 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 		eligableForPromotion = false;
 		onPromotionWasPopped = onPop;
 		withAd = MVClientSettings.InterstitialsAdsEnabled && timer >= timeBeforeAdShown && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest;
-		if (embeddedPlayerConfig.GetCurrentSiteData().showTouristPromotion)
+		if (MVClientSettings.ShowTouristPromotion && embeddedPlayerConfig.GetCurrentSiteData().showTouristPromotion)
 		{
 			TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
 			promotion.Initialize(withAd);

@@ -12,16 +12,23 @@ public class DeathPromotionController : MonoBehaviour, IDeathPromotionSelector, 
 
 	private IPromotionController adController;
 
-	public bool ReadyForAd => adController.ReadyForAd;
+	public bool ReadyForAd
+	{
+		get
+		{
+			if (adController == null)
+			{
+				return false;
+			}
+			return adController.ReadyForAd;
+		}
+	}
 
 	public void Initialize()
 	{
 		if (MVGameControllerBase.IsTouristSession)
 		{
-			if (MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
-			{
-				adController = touristAdController;
-			}
+			adController = touristAdController;
 		}
 		else
 		{

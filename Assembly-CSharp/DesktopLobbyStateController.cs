@@ -49,11 +49,11 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	{
 		base.Start();
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
-		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
-		touristRegisterButton.SetActive(active);
 		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
-		bool flag = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
-		avatarAccessoriesButton.SetActive(!MVGameControllerBase.IsTouristSession || (MVGameControllerBase.IsTouristSession && flag));
+		bool flag = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		bool flag2 = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
+		touristRegisterButton.SetActive(flag && flag2);
+		avatarAccessoriesButton.SetActive(!MVGameControllerBase.IsTouristSession || (MVGameControllerBase.IsTouristSession && flag2));
 		SetCamMaskMode();
 		if (GamePassesManager.GamePassesActive)
 		{

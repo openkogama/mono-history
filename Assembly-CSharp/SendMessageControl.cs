@@ -426,7 +426,7 @@ public class SendMessageControl : MonoBehaviour
 
 	private void ShowBuildInformation()
 	{
-		string message = string.Format(TM._("Version: {0}\nBranch: {1}\nCommitMessage: {2}"), MVGameControllerBase.KoGaMaSettings.VersionString, MVGameControllerBase.KoGaMaSettings.BranchName, MVGameControllerBase.KoGaMaSettings.LatestCommitMessage);
+		string message = string.Format(TM._("Version: {0}\nBranch: {1}"), MVGameControllerBase.KoGaMaSettings.VersionString, MVGameControllerBase.KoGaMaSettings.BranchName);
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, message);
 	}
 

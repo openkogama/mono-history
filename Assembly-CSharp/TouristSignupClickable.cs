@@ -20,7 +20,8 @@ public class TouristSignupClickable : MonoBehaviour
 
 	public void OnClick()
 	{
-		if (MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		if (!currentSiteData.allowsRedirectToWebpage && !currentSiteData.allowsOpenInNewTab && !currentSiteData.allowsModals)
 		{
 			GameObject popup = Object.Instantiate(redirectNotAllowedPopup);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>

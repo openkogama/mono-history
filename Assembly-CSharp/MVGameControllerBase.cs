@@ -284,7 +284,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		stringBuilder.AppendFormat("Version Number: {0}\n", KoGaMaSettings.VersionString);
 		stringBuilder.AppendFormat("Release Name: {0}\n", KoGaMaSettings.ReleaseName);
 		stringBuilder.AppendFormat("Branch: {0}\n", KoGaMaSettings.BranchName);
-		stringBuilder.AppendFormat("Latest commit message: {0}\n", koGaMaSettings.LatestCommitMessage);
 		stringBuilder.AppendFormat("Build time: {0}\n", koGaMaSettings.BuildTime);
 		Debug.Log(stringBuilder);
 		PlayerPrefsManager.EarlyInitialize();
@@ -518,11 +517,23 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
+	private void AlternatePortTest()
+	{
+		Debug.LogWarning("Testing alternate port by setting port to invalid value");
+		int startIndex = GameSessionData.serverIP.LastIndexOf(':');
+		string text = GameSessionData.serverIP.Remove(startIndex);
+		GameSessionData.serverIP = text + ":" + 10000;
+	}
+
 	protected virtual void StartGame()
 	{
 		DisconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
 		embeddedPlayerConfig.Initialize();
+		if (RegionConfig.TestSetup.testAlternatePort)
+		{
+			AlternatePortTest();
+		}
 		game = new MVNetworkGame(RegionConfig.PhotonLoggingConfig, EmbeddedPlayerConfig.GetCurrentSiteData());
 		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
 		if (!Game.Join())

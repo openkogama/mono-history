@@ -29,9 +29,12 @@ public class DesktopInGameGUIController : MonoBehaviour
 	[SerializeField]
 	private GameObject leaveEditPlayModeButton;
 
-	private Dictionary<LoadLogoType, string> logoToPathMap = new Dictionary<LoadLogoType, string> { 
+	[SerializeField]
+	private EmbeddedPlayerConfig embeddedPlayerConfig;
+
+	private Dictionary<EmbeddedSite, string> logoToPathMap = new Dictionary<EmbeddedSite, string> { 
 	{
-		LoadLogoType.Poki,
+		EmbeddedSite.Poki,
 		"Logos/Logo_Poki.png"
 	} };
 
@@ -43,11 +46,11 @@ public class DesktopInGameGUIController : MonoBehaviour
 		if (MVGameControllerBase.IsTouristSession)
 		{
 			touristLogo.SetActive(value: true);
-			LoadLogoType loadLogoType = MVGameControllerBase.GameSessionData.LoadLogoType;
-			if (loadLogoType != LoadLogoType.None)
+			EmbeddedSite siteEnum = embeddedPlayerConfig.GetCurrentSiteData().siteEnum;
+			if (siteEnum != EmbeddedSite.None && logoToPathMap.ContainsKey(siteEnum))
 			{
 				logo.gameObject.SetActive(value: true);
-				string path = Urls.StreamingAssets + logoToPathMap[loadLogoType];
+				string path = Urls.StreamingAssets + logoToPathMap[siteEnum];
 				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 		}

@@ -327,7 +327,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		catch (Exception message)
 		{
 			Debug.Log(message);
-			Debug.Log("Error occurred while requesting web interstitial. webReturnedAvailabilityInterstitial set to true");
+			Debug.LogError("Error occurred while requesting web interstitial. webReturnedAvailabilityInterstitial set to true");
 			webReturnedAvailabilityInterstitial = true;
 		}
 	}
@@ -346,7 +346,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		catch (Exception message)
 		{
 			Debug.Log(message);
-			Debug.Log("Error occurred while requesting web rewarded ad. webReturnedAvailabilityRewardedAd set to true");
+			Debug.LogError("Error occurred while requesting web rewarded ad. webReturnedAvailabilityRewardedAd set to true");
 			webReturnedAvailabilityRewardedAd = true;
 		}
 	}

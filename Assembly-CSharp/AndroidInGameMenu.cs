@@ -29,7 +29,7 @@ public class AndroidInGameMenu : MonoBehaviour
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool flag = MVGameControllerBase.EditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
 		playReward.gameObject.SetActive(value: false);
-		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
+		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		touristRegisterButton.SetActive(active);
 		if (flag)
 		{

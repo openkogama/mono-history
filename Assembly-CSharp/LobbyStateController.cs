@@ -34,8 +34,7 @@ public class LobbyStateController : LobbyFlowMenu
 	public override void Start()
 	{
 		base.Start();
-		bool isTouristSession = MVGameControllerBase.IsTouristSession;
-		touristRegisterButton.SetActive(isTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki);
+		touristRegisterButton.SetActive(MVGameControllerBase.IsTouristSession);
 		accessoryShop.SetActive(value: true);
 		if (GamePassesManager.GamePassesActive)
 		{

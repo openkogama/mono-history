@@ -35,9 +35,6 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	private string branchName = string.Empty;
 
 	[SerializeField]
-	private string latestCommitMessage = string.Empty;
-
-	[SerializeField]
 	private string buildTime = string.Empty;
 
 	[SerializeField]
@@ -66,8 +63,6 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	public string VersionStringNoBuild => VersionMajor + "." + VersionMinor + "." + VersionMicro;
 
 	public string BranchName => branchName;
-
-	public string LatestCommitMessage => latestCommitMessage;
 
 	public string BuildTime => buildTime;
 

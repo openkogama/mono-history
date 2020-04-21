@@ -42,7 +42,7 @@ public class InGameMenu : MonoBehaviour
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool flag = MVGameControllerBase.EditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
 		playReward.gameObject.SetActive(value: false);
-		bool flag2 = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
+		bool flag2 = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
 		bool flag3 = currentSiteData.allowsModals || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsRedirectToWebpage;
 		touristRegisterButton.SetActive(flag2 && flag3);

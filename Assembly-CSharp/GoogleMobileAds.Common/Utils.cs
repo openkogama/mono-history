@@ -19,7 +19,7 @@ internal class Utils
 		Texture2D texture2D = new Texture2D(1, 1);
 		if (!texture2D.LoadImage(img))
 		{
-			throw new InvalidOperationException("Could not load custom native template\n                        image asset as texture");
+			throw new InvalidOperationException("Could not load custom native template\r\n                        image asset as texture");
 		}
 		return texture2D;
 	}

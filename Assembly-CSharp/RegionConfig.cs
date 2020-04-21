@@ -16,4 +16,7 @@ public class RegionConfig : ScriptableObject
 
 	[SerializeField]
 	public PhotonLoggingConfig PhotonLoggingConfig;
+
+	[SerializeField]
+	public TestSetup TestSetup;
 }

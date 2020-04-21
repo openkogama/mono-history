@@ -2498,8 +2498,62 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
+	private class ReconnectWithAlternatePortHandler
+	{
+		private const int alternateSecureWebSocketPort = 19091;
+
+		private const int alternateWebSocketPort = 19090;
+
+		private const int alternateUDPPort = 27000;
+
+		private bool triedAlternatePort;
+
+		private MVNetworkGame networkGame;
+
+		public ReconnectWithAlternatePortHandler(MVNetworkGame networkGame)
+		{
+			this.networkGame = networkGame;
+		}
+
+		public bool IsHandling(StatusCode statusCode)
+		{
+			if (statusCode != StatusCode.Connect && statusCode != StatusCode.Disconnect && networkGame.ConnState == MVConnState.Connecting && !triedAlternatePort)
+			{
+				Debug.LogWarning("Ignored status code: " + statusCode);
+				return true;
+			}
+			if (statusCode != StatusCode.Connect && networkGame.ConnState == MVConnState.Connecting && !triedAlternatePort)
+			{
+				triedAlternatePort = true;
+				Debug.LogError("Retrying to connect with alternate port: Failed connecting to: " + MVGameControllerBase.GameSessionData.serverIP);
+				int startIndex = MVGameControllerBase.GameSessionData.serverIP.LastIndexOf(':');
+				string text = MVGameControllerBase.GameSessionData.serverIP.Remove(startIndex);
+				int alternatePort = GetAlternatePort(MVGameControllerBase.GameSessionData.serverIP);
+				MVGameControllerBase.GameSessionData.serverIP = text + ":" + alternatePort;
+				networkGame.Join();
+				return true;
+			}
+			return false;
+		}
+
+		private static int GetAlternatePort(string serverIP)
+		{
+			if (serverIP.Contains("wss://"))
+			{
+				return 19091;
+			}
+			if (serverIP.Contains("ws://"))
+			{
+				return 19090;
+			}
+			return 27000;
+		}
+	}
+
 	private class StatusChangedHandling
 	{
+		private ReconnectWithAlternatePortHandler reconnectWithAlternatePortHandler;
+
 		private bool registeredFatalStatusCodeInStatHat;
 
 		private MVNetworkGame networkGame;
@@ -2507,6 +2561,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public StatusChangedHandling(MVNetworkGame networkGame)
 		{
 			this.networkGame = networkGame;
+			reconnectWithAlternatePortHandler = new ReconnectWithAlternatePortHandler(networkGame);
 		}
 
 		private void HandleDisconnectMetric(StatusCode returnCode)
@@ -2522,10 +2577,16 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void OnStatusChanged(StatusCode returnCode)
 		{
 			Debug.Log("PeerStatusCallback():" + returnCode);
+			if (reconnectWithAlternatePortHandler.IsHandling(returnCode))
+			{
+				return;
+			}
 			HandleDisconnectMetric(returnCode);
 			switch (returnCode)
 			{
 			case StatusCode.Connect:
+				DebugLogHandler.DidConnectToGameServer = true;
+				networkGame.Peer.DebugOut = networkGame.photonLoggingConfig.defaultDebugLevel;
 				MVGameControllerBase.OperationRequests.JoinGame();
 				break;
 			case StatusCode.Disconnect:
@@ -2904,6 +2965,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	public bool Join()
 	{
 		ConnState = MVConnState.Connecting;
+		Debug.Log("MVGameControllerBase.GameSessionData.serverIP: " + MVGameControllerBase.GameSessionData.serverIP);
 		return Peer.Connect(MVGameControllerBase.GameSessionData.serverIP, "MVGameServer");
 	}
 
@@ -3760,11 +3822,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnStatusChanged(StatusCode statusCode)
 	{
 		statusChangedHandling.OnStatusChanged(statusCode);
-		if (statusCode == StatusCode.Connect)
-		{
-			DebugLogHandler.DidConnectToGameServer = true;
-			Peer.DebugOut = photonLoggingConfig.defaultDebugLevel;
-		}
 	}
 
 	public void OnEvent(EventData eventData)
@@ -3826,10 +3883,20 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void DebugReturn(DebugLevel level, string debug)
 	{
-		if (level == DebugLevel.ERROR)
+		switch (level)
 		{
-			Debug.LogError("DebugReturn: " + debug);
+		case DebugLevel.ERROR:
+			Debug.LogError(debug);
+			break;
+		case DebugLevel.WARNING:
+			Debug.LogWarning(debug);
+			break;
+		case DebugLevel.INFO:
+			Debug.Log(debug);
+			break;
+		default:
+			Debug.Log(debug);
+			break;
 		}
-		Debug.Log(debug);
 	}
 }

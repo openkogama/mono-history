@@ -4,11 +4,6 @@ using MV.Common;
 
 public class GameSessionData
 {
-	private static class ReferrerStrings
-	{
-		public const string Poki = "gsm";
-	}
-
 	public string serverIP = string.Empty;
 
 	public int profileID = -1;
@@ -60,26 +55,6 @@ public class GameSessionData
 	public string referrer = string.Empty;
 
 	public bool detailedStats;
-
-	private Dictionary<string, LoadLogoType> referralToLogoMap = new Dictionary<string, LoadLogoType> { 
-	{
-		"gsm",
-		LoadLogoType.Poki
-	} };
-
-	public bool IsPlayedFromPoki => referrer == "gsm";
-
-	public LoadLogoType LoadLogoType
-	{
-		get
-		{
-			if (!string.IsNullOrEmpty(referrer) && referralToLogoMap.ContainsKey(referrer))
-			{
-				return referralToLogoMap[referrer];
-			}
-			return LoadLogoType.None;
-		}
-	}
 
 	public ConnectionProtocol ConnectionProtocol => ConnectionProtocol.Udp;
 
