@@ -19,11 +19,15 @@ public class TouristPromotionExternalEvaluator : MonoBehaviour
 	[SerializeField]
 	private TouristPromotion creyGamesPrefab;
 
+	[SerializeField]
+	private TouristPromotion customPromotionPrefab;
+
 	private List<TouristPromotionExternalDef> availablePromotions = new List<TouristPromotionExternalDef>();
 
 	public void Start()
 	{
 		availablePromotions.Add(new TouristPromotionExternalDef(creyGamesPrefab, MVGameControllerBase.Game.CreySettings.TouristPromotionCreyFrequencyPercent));
+		availablePromotions.Add(new TouristPromotionExternalDef(customPromotionPrefab, MVGameControllerBase.Game.CustomTouristPromotionSettings.FrequencyPercent));
 	}
 
 	public bool TryGetExternalPromotion(out TouristPromotion externalPromotion)

@@ -13,6 +13,9 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 	private EmbeddedPlayerConfig embeddedPlayerConfig;
 
 	[SerializeField]
+	private TouristPromotionExternalEvaluator touristPromotionExternalEvaluator;
+
+	[SerializeField]
 	private float timeBeforeAdShown = 180f;
 
 	private float timer;
@@ -56,11 +59,15 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IPromoti
 		withAd = MVClientSettings.InterstitialsAdsEnabled && timer >= timeBeforeAdShown && MVGameControllerBase.AdManager.ReadyForInterstitialAdRequest;
 		if (MVClientSettings.ShowTouristPromotion && embeddedPlayerConfig.GetCurrentSiteData().showTouristPromotion)
 		{
-			TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
-			promotion.Initialize(withAd);
+			if (touristPromotionExternalEvaluator == null || !touristPromotionExternalEvaluator.TryGetExternalPromotion(out var externalPromotion))
+			{
+				externalPromotion = touristPromotionPrefab;
+			}
+			TouristPromotion createdPromotion = Object.Instantiate(externalPromotion);
+			createdPromotion.Initialize(withAd);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(promotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
+				x.Push(createdPromotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
 			});
 		}
 		else if (withAd)

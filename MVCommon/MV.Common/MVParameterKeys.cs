@@ -242,6 +242,10 @@ public enum MVParameterKeys : byte
 	AdTimeoutAsSuccessWebGL = 237,
 	InterstitialTimeoutAfterRewardedAdWebGL = 238,
 	InterstitialTimeoutAfterRewardedAdAndroid = 239,
+	CustomTouristPromotionRedirectToURL = 240,
+	CustomTouristPromotionURL = 241,
+	CustomTouristPromotionAssetURL = 242,
+	CustomTouristPromotionFrequencyPercent = 243,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,
@@ -254,5 +258,5 @@ public enum MVParameterKeys : byte
 	ReceiverGroup = 246,
 	Data = 245,
 	Code = 244,
-	Flush = 243
+	Flush = CustomTouristPromotionFrequencyPercent
 }

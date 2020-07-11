@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Api.Mediation.IronSource;
 using GoogleMobileAds.Api.Mediation.UnityAds;
-using GoogleMobileAds.Api.Mediation.Vungle;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -810,7 +809,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	private void SetConsent(bool hasConsented, bool isGDPRConsentRequired)
 	{
-		SetConsentVungle(hasConsented);
 		SetConsentUnityAds(hasConsented);
 		SetConsentIronSource(hasConsented);
 	}
@@ -831,16 +829,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 			return new AdRequest.Builder().AddTestDevice("2F722B7F88436E816B98A0245E195219").AddExtra("tag_for_under_age_of_consent", "true").Build();
 		}
 		return new AdRequest.Builder().AddTestDevice("2F722B7F88436E816B98A0245E195219").Build();
-	}
-
-	private void SetConsentVungle(bool hasConsented)
-	{
-		VungleConsent consentStatus = VungleConsent.ACCEPTED;
-		if (!hasConsented)
-		{
-			consentStatus = VungleConsent.DENIED;
-		}
-		Vungle.UpdateConsentStatus(consentStatus);
 	}
 
 	private void SetConsentUnityAds(bool hasConsented)

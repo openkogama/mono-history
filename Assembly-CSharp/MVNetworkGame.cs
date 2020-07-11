@@ -2767,6 +2767,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public CreySettings CreySettings { get; private set; }
 
+	public CustomTouristPromotionSettings CustomTouristPromotionSettings { get; private set; }
+
 	public ElitePromotionSettings EliteSettings { get; private set; }
 
 	public int ServerTimeInMilliSeconds
@@ -3180,6 +3182,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		AdConsentEndpointURL = (string)returnValues[225];
 		KogamaMainpageURL = (string)returnValues[226];
 		CreySettings = new CreySettings((int)returnValues[228], (string)returnValues[229], (bool)returnValues[230]);
+		CustomTouristPromotionSettings = new CustomTouristPromotionSettings((int)returnValues[243], (string)returnValues[241], (string)returnValues[242], (bool)returnValues[240]);
 		EliteSettings = new ElitePromotionSettings((bool)returnValues[231], (int)returnValues[232]);
 		AdConfigSettings config = new AdConfigSettings(embeddedSiteConfigData, (bool)returnValues[237], (int)returnValues[235], (int)returnValues[238]);
 		MVGameControllerBase.AdManager.InitializeAdConfigSettings(config);
