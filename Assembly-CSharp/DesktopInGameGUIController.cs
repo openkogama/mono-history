@@ -47,7 +47,7 @@ public class DesktopInGameGUIController : MonoBehaviour
 		{
 			touristLogo.SetActive(value: true);
 			EmbeddedSite siteEnum = embeddedPlayerConfig.GetCurrentSiteData().siteEnum;
-			if (siteEnum != EmbeddedSite.None && logoToPathMap.ContainsKey(siteEnum))
+			if (siteEnum != EmbeddedSite.None && siteEnum != EmbeddedSite.DefaultEmbedded && logoToPathMap.ContainsKey(siteEnum))
 			{
 				logo.gameObject.SetActive(value: true);
 				string path = Urls.StreamingAssets + logoToPathMap[siteEnum];

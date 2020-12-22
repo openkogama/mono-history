@@ -25,12 +25,13 @@ public class TouristPromotionDesktop : TouristPromotion
 
 	protected override void Start()
 	{
+		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
+		embedded = currentSiteData.siteEnum != EmbeddedSite.None;
 		base.Start();
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 		Debug.Log("Referrer: " + MVGameControllerBase.GameSessionData.referrer);
 		redirectButton.SetActive(MVGameControllerBase.GameSessionData.embedded);
-		EmbeddedSiteConfigData currentSiteData = embeddedPlayerConfig.GetCurrentSiteData();
 		signupButton.SetActive(currentSiteData.allowsRedirectToWebpage || currentSiteData.allowsOpenInNewTab || currentSiteData.allowsModals);
 		Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
 		redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();

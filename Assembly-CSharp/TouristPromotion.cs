@@ -22,10 +22,12 @@ public class TouristPromotion : MonoBehaviour
 
 	protected bool promotionShowsAd;
 
+	protected bool embedded;
+
 	protected virtual void Start()
 	{
 		StatHatWrapper.Count("TouristPromotion.Kogama", 1);
-		looksData.RandomizePromotion();
+		looksData.RandomizePromotion(embedded);
 		promotionHeader.text = looksData.GetPromotionText();
 		Image promotionImage = looksData.GetPromotionImage();
 		promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);

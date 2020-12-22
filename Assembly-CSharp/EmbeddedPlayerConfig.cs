@@ -19,6 +19,9 @@ public class EmbeddedPlayerConfig : ScriptableObject
 	[SerializeField]
 	public EmbeddedSiteConfigData kogamaDefaultData;
 
+	[SerializeField]
+	public EmbeddedSiteConfigData embeddedDefaultData;
+
 	private bool initialized;
 
 	private EmbeddedSiteConfigData currentSite;
@@ -62,6 +65,11 @@ public class EmbeddedPlayerConfig : ScriptableObject
 			url = result.Host;
 		}
 		string host = UnityWebRequest.UnEscapeURL(url);
+		if (IsValidHost(host, kogamaDefaultData.sites.ToArray()))
+		{
+			currentSite = kogamaDefaultData;
+			return;
+		}
 		try
 		{
 			for (int i = 0; i < siteData.Count; i++)

@@ -364,10 +364,26 @@ public class SendMessageControl : MonoBehaviour
 			break;
 		case "/gdforce":
 		{
-			EmbeddedSiteConfigData site2 = new EmbeddedSiteConfigData
+			EmbeddedSiteConfigData site3 = new EmbeddedSiteConfigData
 			{
 				integratedSdk = true,
 				siteEnum = EmbeddedSite.GameDistribution
+			};
+			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(site3);
+			break;
+		}
+		case "/embedforce":
+		{
+			EmbeddedSiteConfigData site2 = new EmbeddedSiteConfigData
+			{
+				integratedSdk = false,
+				siteEnum = EmbeddedSite.DefaultEmbedded,
+				showTouristPromotion = true,
+				allowsOpenInNewTab = true,
+				allowsRedirectToWebpage = true,
+				allowsModals = true,
+				allowsFallbackAds = true,
+				showPlayButtonAd = true
 			};
 			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(site2);
 			break;

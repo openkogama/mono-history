@@ -4,5 +4,6 @@ public enum EmbeddedSite
 	GameDistribution,
 	Poki,
 	Spilgames,
-	Y8
+	Y8,
+	DefaultEmbedded
 }

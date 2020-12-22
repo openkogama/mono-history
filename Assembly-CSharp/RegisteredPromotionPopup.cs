@@ -43,7 +43,7 @@ public class RegisteredPromotionPopup : MonoBehaviour
 		this.withAd = withAd;
 		if (isEmbeddedPromotion)
 		{
-			looksData.RandomizePromotion();
+			looksData.RandomizePromotion(embedded: true);
 			promotionHeader.text = looksData.GetPromotionText();
 			Image promotionImage = looksData.GetPromotionImage();
 			promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);
