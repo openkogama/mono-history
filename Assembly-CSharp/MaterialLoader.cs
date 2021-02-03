@@ -145,14 +145,14 @@ public class MaterialLoader : MonoBehaviour
 
 	private void InitAllMaterials(bool useSM3)
 	{
-		int num = Mathf.CeilToInt((float)CubeModelMaterial.mainTexture.width * (TextureAtlas.UV[0].width + 1f / (float)CubeModelMaterial.mainTexture.width));
+		int num = Mathf.CeilToInt((float)CubeModelMaterial.mainTexture.width * (0.06248047f + 1f / (float)CubeModelMaterial.mainTexture.width));
 		int num2 = Mathf.FloorToInt(Mathf.Log(num, 2f));
-		CubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
+		CubeModelMaterial.SetVector("_MaterialSize", new Vector4(0.06248047f, 0.06248047f, num, num2));
 		CubeModelMaterial.mainTexture.filterMode = FilterMode.Point;
 		CubeModelMaterial.mainTexture.anisoLevel = 1;
 		if (useSM3)
 		{
-			CubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
+			CubeModelMaterial.SetVector("_MaterialSize", new Vector4(0.06248047f, 0.06248047f, num, num2));
 			CubeModelMaterial.mainTexture.filterMode = FilterMode.Bilinear;
 			CubeModelMaterial.mainTexture.anisoLevel = 2;
 		}

@@ -31,7 +31,7 @@ public class MVMaterial
 	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, bool isUnlocked, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 		: this(physicalProperties, materialSound, modifierPackageType)
 	{
-		if (materialId == 60)
+		if (materialId == 63)
 		{
 			materialId = 24;
 		}
@@ -56,7 +56,7 @@ public class MVMaterial
 	{
 		Mesh = new Mesh();
 		MeshDataPool.Reset();
-		Rect rect = TextureAtlas.UV[materialId];
+		Vector2 atlasPoint = TextureAtlas.GetAtlasPoint(materialId);
 		int num = 0;
 		for (int i = 0; i < 6; i++)
 		{
@@ -74,7 +74,7 @@ public class MVMaterial
 			MeshDataPool.AddUv(new Vector2(1f, 1f));
 			for (int j = 0; j < 4; j++)
 			{
-				MeshDataPool.AddColor(new Color(1f, rect.x, rect.y));
+				MeshDataPool.AddColor(new Color(1f, atlasPoint.x, atlasPoint.y));
 			}
 		}
 		Mesh.vertices = MeshDataPool.GetVertices();

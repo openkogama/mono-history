@@ -12,7 +12,7 @@ public class MaterialDescription
 		Size
 	}
 
-	public static readonly MaterialDescription[] materialDescriptions = new MaterialDescription[60]
+	public static readonly MaterialDescription[] materialDescriptions = new MaterialDescription[63]
 	{
 		new MaterialDescription(TM._("Bright Red"), TM._("This standard material can be used to create games, cube models and avatars.")),
 		new MaterialDescription(TM._("Red"), TM._("This standard material can be used to create games, cube models and avatars.")),
@@ -73,7 +73,10 @@ public class MaterialDescription
 		new MaterialDescription(TM._("Soft Destructible"), TM._("This material can easily be destroyed by weapons, explosives and when it's hit by players or vehicles. You can hide treasures for the players with this."), MaterialSpecialProperty.Destructable),
 		new MaterialDescription(TM._("Medium Destructible"), TM._("This material can be destroyed by weapons, explosives and when it's hit by players or vehicles. Build a castle with this... And DESTROY it!"), MaterialSpecialProperty.Destructable),
 		new MaterialDescription(TM._("Hard Destructible"), TM._("This material can be destroyed by weapons, explosives and when it's hit by players or vehicles. To destroy this takes real work. Use it to create robust yet destructible walls."), MaterialSpecialProperty.Destructable),
-		new MaterialDescription(TM._("Cracked Ice"), TM._("Both destructible and very slippery this material is great for building ice castles!"), MaterialSpecialProperty.Destructable, MaterialSpecialProperty.Slippery)
+		new MaterialDescription(TM._("Cracked Ice"), TM._("Both destructible and very slippery this material is great for building ice castles!"), MaterialSpecialProperty.Destructable, MaterialSpecialProperty.Slippery),
+		new MaterialDescription(TM._("Striped Cement"), TM._("This standard material can be used to create games, cube models and avatars.")),
+		new MaterialDescription(TM._("Machinery"), TM._("This standard material can be used to create games, cube models and avatars.")),
+		new MaterialDescription(TM._("Embossed Metal"), TM._("This standard material can be used to create games, cube models and avatars."))
 	};
 
 	private BitArray specialProperties = new BitArray(5);

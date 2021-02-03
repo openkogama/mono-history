@@ -541,14 +541,15 @@ public class CubeModelChunk
 			for (int i = 0; i < index; i++)
 			{
 				int num2 = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
-				if (num2 < 0 || num2 >= 60)
+				if (num2 < 0 || num2 >= 63)
 				{
 					num2 = 24;
 				}
 				for (int j = 0; j < 4; j++)
 				{
-					faceData[i].colors[j].g = TextureAtlas.UV[num2].position.x;
-					faceData[i].colors[j].b = TextureAtlas.UV[num2].position.y;
+					Vector2 atlasPoint = TextureAtlas.GetAtlasPoint(num2);
+					faceData[i].colors[j].g = atlasPoint.x;
+					faceData[i].colors[j].b = atlasPoint.y;
 					MeshDataPool.AddVertex(faceData[i].faceVertices[j]);
 					MeshDataPool.AddColor(faceData[i].colors[j]);
 				}
