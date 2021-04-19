@@ -279,6 +279,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected virtual void Awake()
 	{
 		instance = this;
+		gameObject.AddComponent<MVUtils>();
 		StringBuilder stringBuilder = new StringBuilder(256);
 		stringBuilder.Append("Build info\n");
 		stringBuilder.AppendFormat("Version Number: {0}\n", KoGaMaSettings.VersionString);
