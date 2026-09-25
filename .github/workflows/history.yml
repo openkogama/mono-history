@@ -1,0 +1,70 @@
+name: history
+
+on:
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: "throw the history branch away and build it from scratch"
+        type: boolean
+        default: false
+      limit:
+        description: "only the first N builds per shard (0 = all)"
+        type: string
+        default: "0"
+
+permissions:
+  contents: write
+
+env:
+  GIT_AUTHOR_NAME: imuarte
+  GIT_AUTHOR_EMAIL: 148490114+imuarte@users.noreply.github.com
+  GIT_COMMITTER_NAME: imuarte
+  GIT_COMMITTER_EMAIL: 148490114+imuarte@users.noreply.github.com
+
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet tool install -g ilspycmd --version 11.1.0.9782
+      - run: python history.py decompile --shard ${{ matrix.shard }} --shards 16 --limit ${{ inputs.limit }} --out out
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: src-${{ matrix.shard }}
+          path: out/
+
+  assemble:
+    runs-on: ubuntu-latest
+    needs: decompile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          path: src
+          merge-multiple: true
+      - env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REBUILD: ${{ inputs.rebuild }}
+        run: |
+          remote="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if [ "$REBUILD" != "true" ] && git ls-remote --exit-code --heads "$remote" history; then
+            git clone --quiet --branch history --single-branch "$remote" hist
+          fi
+          python history.py assemble --src src --repo hist
+          cat src/failed-*.json
+          git -C hist push --force "$remote" HEAD:refs/heads/history
+          git -C hist push --force --tags "$remote"
