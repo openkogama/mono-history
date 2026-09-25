@@ -16,10 +16,10 @@ permissions:
   contents: write
 
 env:
-  GIT_AUTHOR_NAME: imuarte
-  GIT_AUTHOR_EMAIL: 148490114+imuarte@users.noreply.github.com
-  GIT_COMMITTER_NAME: imuarte
-  GIT_COMMITTER_EMAIL: 148490114+imuarte@users.noreply.github.com
+  GIT_AUTHOR_NAME: kogama-history
+  GIT_AUTHOR_EMAIL: kogama-history@openkogama.invalid
+  GIT_COMMITTER_NAME: kogama-history
+  GIT_COMMITTER_EMAIL: kogama-history@openkogama.invalid
 
 jobs:
   decompile:
